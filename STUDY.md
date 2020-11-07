@@ -154,3 +154,23 @@ validationSchema: Joi.object({
 - restaurant.entity.ts에 정의한 클래스는 graphql의 schema를 자동으로 만들어주는 것이라고만 생각했는데,
 - typeorm db의 schema도 같이 만들어 질 수 있는 것.
 - 근데 relation은 어떻게??
+
+- module의 TypeOrm 세팅에서, entities에 만들어준 엔티티를 넣어주자.
+- synchronize option을 true로 해놓으면, entity에 해당하는 database schema를 자동으로 업데이트 해준다.
+
+- error
+
+  - entities 경로에 'src/\*_/_.entity{.ts,.js}' 이렇게 집어 넣었떠니.
+  - Cannot use import statement outside a module에러가 나왔는데,
+  - 구글링 결과 경로 문제인 듯.. 해서..
+  - entities: [join(__dirname, '**', '*.entity.{ts,js}`)]
+  - 이렇게 바꿔주라 한다.
+  - module setting의 forRoot를 이용할 때는 위와 같은 방법을 사용하고,
+  - ormconfig.json을 사용하는 경우는..
+  - entities: 'src/\*_/_.entity{.ts,.js}'
+  - 이런식으로 사용하면 된다고 한다.
+
+  - .env와 ormconfig.json 을 같이 혼용하고 싶었는데 안 된다.
+    - password 문제만 아니면 ormconfig.json을 사용할 수 있는데..
+    - password 때문에 따로 forRoot에서 설정해줬는데, 둘 중 하나만 사용이 가능한가보다.
+  - 잘 작동이 안되어서 강의대로 Class name을 넣었다.
