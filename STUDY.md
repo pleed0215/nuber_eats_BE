@@ -17,16 +17,80 @@
 1. graphql resolver on nestjs
    - resolver를 아래와 같이 만들어주고...
    ```js
-   @Resolver()
+   @Resolver(of => Restaurant)
    export class RestaurantsResolver {
-     @Query(() => Boolean)
-     isPizzaGood(): Boolean {
-       return true;
+     @Query(returns => [Restaurant])
+     restaurants(@Args('veganOnly') veganOnly: boolean): Restaurant[] {
+       return [];
      }
    }
    ```
 
-- module 파일에
+- 이런 것은 그냥 익혀놔야 함. 왜냐하면 프레임워크이니까..
+- 이렇게 해 놓으면 schema.gql을 자동으로 만들어준다.
+
+2. InputType 활용.
+
+```js
+@Mutation(returns => Boolean)
+  createRestaurant(
+    @Args('name') name: string,
+    @Args('isVegan') isVegan: boolean,
+    @Args('address') address: string,
+    @Args('ownerName') ownerName: string,
+  ): boolean {
+    return true;
+  }
+```
+
+```js
+@InputType()
+export class CreateRestaurantDto {
+  @Field(type => String) name: string;
+  @Field(type => Boolean) isVegan: boolean;
+  @Field(type => String) address: string;
+  @Field(type => String) ownerName: string;
+}
+```
+
+- InputType을 이렇게 넘길 수도 있다.
+
+- @Args를 이렇게 반복하는 대신에..InputType을 활용해도 된다.
+- 일종의 Dto를 만들어서,
+- @InputType과 @ArgsType
+  - 강의에서 입력하기 힘들다 하면서 갑자기 바꿈.
+  - 그도 그럴만한게..
+  ```graphql
+    mutation {
+      createRestaurant(createRestaurantInput: {
+        name: ""
+        isVegan: false
+        ...
+      })
+    }
+  ```
+- 사용방법이 각각 좀 다르다.
+- @InputType을 이용할 때에는 object로 넘겨줘야하기 때문에
+  - resolver에서도
+  ```js
+    createRestaurant(
+    @Args('createRestaurantInput') createRestaurantInput: CreateRestaurantDto,
+  ): boolean
+  ```
+  - 이런 식으로 사용해줘야 하는 반면에..
+  - @ArgsType을 사용하면
+  ```js
+  createRestaurant(
+    @Args() createRestaurantInput: CreateRestaurantDto,
+  ):
+  ```
+  - 이렇게 바꿔서 써 줄 수 있다.
+  - endpoint에서 사용 방법 역시 다른데,
+  - @InputType 같은 경우는 위에서 언급했고,
+  - @ArgsType 같은 경우는 그냥 argument사용하듯이 넘겨주면 된다.
+  - @ArgsType은 윗 부분에 Args 여러개 사용한 부분과 같은 역할을 하는 것.
+
+* module 파일에
 
   ```js
   @Module({
@@ -39,3 +103,27 @@
   - 이렇게 추가해주면 자동으로 shcema파일을 만들어준다.
 
     - resolver 파일의 Boolean 타입은 graphql type이다.
+
+3. class-validator package
+
+- npm i calss-validator class-transformer
+-
+
+## 2 TypeORM
+
+1. installation
+
+```sh
+  npm install typeorm --save
+  npm install reflect-metadata --save
+  npm install @types/node --save-dev
+  npm install mysql --save
+  npm install pg --save
+  npm install @nestjs/typeorm
+```
+
+and import it somewhere in the global place of your app (for example in app.ts)
+import "reflect-metadata";
+
+- @nestjs에서 typeorm 세팅하는 것은 @neestjs/typeorm 검색해서 확인.
+-
