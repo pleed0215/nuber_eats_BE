@@ -8,5 +8,5 @@ type Restaurant {
 }
 
 type Query {
-  myRestaunrant: Restaurant!
+  restaurants(veganOnly: Boolean!): [Restaurant!]!
 }
