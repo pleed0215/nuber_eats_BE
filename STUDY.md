@@ -126,4 +126,31 @@ and import it somewhere in the global place of your app (for example in app.ts)
 import "reflect-metadata";
 
 - @nestjs에서 typeorm 세팅하는 것은 @neestjs/typeorm 검색해서 확인.
--
+- db confinguration에서 db password 등을 저장하는 것은 당연히 dotenv 쓸 것이라 생각을 했지만..
+- @nestjs/config를 이용해서 ConfigModule로 이용하지만, 이것도 사실은 dotenv를 사용하는 것.
+
+2. joi
+
+- 패키지를 또 설치한다... 너무 많엉.
+- The most powerful schema description language and data validator for JS.
+- 라고 한다.
+- 엄청 중요한 패키지인듯..
+
+```js
+validationSchema: Joi.object({
+  NODE_ENV: Joi.string().valid('dev', 'prod'),
+  POSTGRES_PASSWORD: Joi.string().required(),
+});
+```
+
+- 간단하게 예제로 만들어 준 것 같은데, string이 dev or prod인지 검증한다.
+- 검증한다고 패키지를 인스톨하진 않았을 것 같다.
+
+## 3 TYPEORM and nest
+
+1. typeorm & graphql
+
+- 여기서 이런 큰 그림이 있는 줄 몰랐다.
+- restaurant.entity.ts에 정의한 클래스는 graphql의 schema를 자동으로 만들어주는 것이라고만 생각했는데,
+- typeorm db의 schema도 같이 만들어 질 수 있는 것.
+- 근데 relation은 어떻게??
