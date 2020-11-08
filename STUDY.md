@@ -292,7 +292,8 @@ export class UserRepository extends Repository<User> {
 
   - dto에서 type이 arg타입인지 input 타입인지 확인하고
 
-    - mutation이나 query에서 arg타입인지 input 타입인지 같아야 한다.
-    - 이거 원인 찾는다고 30분을 해맸다.
+    - @Args() 생략하는 것은 안해야 겠다.. 계속 에러 났었음.
 
   - validation은 object type에서 해도 되므로 entity로 옮기면 된다.
+
+- IsOptional()

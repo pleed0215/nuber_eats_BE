@@ -12,6 +12,7 @@ export class RestaurantsResolver {
   }
   @Mutation(returns => Boolean)
   async createRestaurant(
+    @Args('input')
     createRestaurantInput: CreateRestaurantDto,
   ): Promise<boolean> {
     try {
