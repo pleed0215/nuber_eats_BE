@@ -174,3 +174,79 @@ validationSchema: Joi.object({
     - password 문제만 아니면 ormconfig.json을 사용할 수 있는데..
     - password 때문에 따로 forRoot에서 설정해줬는데, 둘 중 하나만 사용이 가능한가보다.
   - 잘 작동이 안되어서 강의대로 Class name을 넣었다.
+
+2. Active Record vs Data mapper?
+ ### 1. Active Record
+ - Entity는 BaseEntity라는 클래스를 상속 받아서 정의해야 한다.
+ ```js
+  @ObjectType()
+  @Entity()
+  export class Restaurant extends BaseEntity {
+    ...
+  }
+ ```
+ - custom method를 정의하고 싶다면, static으로 메소드를 만들어줘야 한다.
+ ```js
+ static findByName(firstName: string, lastName: string) {
+        return this.createQueryBuilder("user")
+            .where("user.firstName = :firstName", { firstName })
+            .andWhere("user.lastName = :lastName", { lastName })
+            .getMany();
+    }
+
+ ```
+ 
+ ### 2. Data mapper
+ - Data mapper는 위에서 BaseEntity를 상속받지 아니하고 그냥 사용이 가능하다.
+ - Activie Record 같은 경우 find, create, save method를 이용하고 싶다면.
+ - Entity 클래스 method를 사용해야 한다.
+ ```js
+    // example from typeorm documentaiton
+    const user = new User();
+    user.firstName = "";
+    await user.save();
+    await user.remove();
+
+    const newUsers = await user.find({...some condition})
+
+ ```
+  - 반면에 data mapper에서는 repository라는 것을 이용해야 ㅎ한다.
+  ```js
+    const userRepository = connection.getRepository(User);
+    const newUser = new User();
+    user.firstName = "";
+    // Active record와 차이
+    await userRepository.save(user);
+    await userRepository.remove(user);
+
+    const foundUser = await userRepository.find({...some condition});
+  ```
+  - 사용법에는 차이가 있지만, 장단점이 있으므로 사용자가 알아서 하면 된다라는 것..
+  - custom method를 추가하는 것도 ActiveRecord와 다르다.
+  ```js
+  // Active record의 custom method 만드는 방법.
+    export class User extends BaseEntity {
+      ...
+      static findByName(firstName: string, lastName: string) {
+        return this.createQueryBuilder("user").
+        where("user.firstName = :firstName", {firstName}).
+        andWhere("user.lastName = :lastName", {lastName}).
+        getMany();
+      }
+    }
+  // Data mapper의 custom method 만드는 방법.
+  export class UserRepository extends Repository<User> {
+    findByName (firstName: string, lastName: string) {
+      static findByName(firstName: string, lastName: string) {
+        return this.createQueryBuilder("user").
+        where("user.firstName = :firstName", {firstName}).
+        andWhere("user.lastName = :lastName", {lastName}).
+        getMany();
+      }
+    }
+  }
+  ```
+
+  - 이렇듯 방법이 서로 다름.
+
+  
