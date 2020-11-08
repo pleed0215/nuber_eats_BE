@@ -292,8 +292,13 @@ export class UserRepository extends Repository<User> {
 
   - dto에서 type이 arg타입인지 input 타입인지 확인하고
 
-    - @Args() 생략하는 것은 안해야 겠다.. 계속 에러 났었음.
+    - @Args() 생략하는 것 -> ArgsType
+    - @Args('name') 적는 것 -> InputType
 
   - validation은 object type에서 해도 되므로 entity로 옮기면 된다.
 
 - IsOptional()
+
+- UpdatedRestaurantDto에서 PartialType으로 CreateRestaurantDto를 상속 받아서 사용하였는데
+  - id가 필요하므로, Restaurant를 PartialType으로 해도 되지 않을까??
+  - 그런데 id는 필수이지 optional이 아니므로, id 필드를 추가해주는 방향으로 한 것.
