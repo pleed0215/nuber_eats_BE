@@ -176,77 +176,123 @@ validationSchema: Joi.object({
   - 잘 작동이 안되어서 강의대로 Class name을 넣었다.
 
 2. Active Record vs Data mapper?
- ### 1. Active Record
- - Entity는 BaseEntity라는 클래스를 상속 받아서 정의해야 한다.
- ```js
-  @ObjectType()
-  @Entity()
-  export class Restaurant extends BaseEntity {
+
+### 1. Active Record
+
+- Entity는 BaseEntity라는 클래스를 상속 받아서 정의해야 한다.
+
+```js
+ @ObjectType()
+ @Entity()
+ export class Restaurant extends BaseEntity {
+   ...
+ }
+```
+
+- custom method를 정의하고 싶다면, static으로 메소드를 만들어줘야 한다.
+
+```js
+static findByName(firstName: string, lastName: string) {
+       return this.createQueryBuilder("user")
+           .where("user.firstName = :firstName", { firstName })
+           .andWhere("user.lastName = :lastName", { lastName })
+           .getMany();
+   }
+
+```
+
+### 2. Data mapper
+
+- Data mapper는 위에서 BaseEntity를 상속받지 아니하고 그냥 사용이 가능하다.
+- Activie Record 같은 경우 find, create, save method를 이용하고 싶다면.
+- Entity 클래스 method를 사용해야 한다.
+
+```js
+   // example from typeorm documentaiton
+   const user = new User();
+   user.firstName = "";
+   await user.save();
+   await user.remove();
+
+   const newUsers = await user.find({...some condition})
+
+```
+
+- 반면에 data mapper에서는 repository라는 것을 이용해야 ㅎ한다.
+
+```js
+  const userRepository = connection.getRepository(User);
+  const newUser = new User();
+  user.firstName = "";
+  // Active record와 차이
+  await userRepository.save(user);
+  await userRepository.remove(user);
+
+  const foundUser = await userRepository.find({...some condition});
+```
+
+- 사용법에는 차이가 있지만, 장단점이 있으므로 사용자가 알아서 하면 된다라는 것..
+- custom method를 추가하는 것도 ActiveRecord와 다르다.
+
+```js
+// Active record의 custom method 만드는 방법.
+  export class User extends BaseEntity {
     ...
-  }
- ```
- - custom method를 정의하고 싶다면, static으로 메소드를 만들어줘야 한다.
- ```js
- static findByName(firstName: string, lastName: string) {
-        return this.createQueryBuilder("user")
-            .where("user.firstName = :firstName", { firstName })
-            .andWhere("user.lastName = :lastName", { lastName })
-            .getMany();
-    }
-
- ```
- 
- ### 2. Data mapper
- - Data mapper는 위에서 BaseEntity를 상속받지 아니하고 그냥 사용이 가능하다.
- - Activie Record 같은 경우 find, create, save method를 이용하고 싶다면.
- - Entity 클래스 method를 사용해야 한다.
- ```js
-    // example from typeorm documentaiton
-    const user = new User();
-    user.firstName = "";
-    await user.save();
-    await user.remove();
-
-    const newUsers = await user.find({...some condition})
-
- ```
-  - 반면에 data mapper에서는 repository라는 것을 이용해야 ㅎ한다.
-  ```js
-    const userRepository = connection.getRepository(User);
-    const newUser = new User();
-    user.firstName = "";
-    // Active record와 차이
-    await userRepository.save(user);
-    await userRepository.remove(user);
-
-    const foundUser = await userRepository.find({...some condition});
-  ```
-  - 사용법에는 차이가 있지만, 장단점이 있으므로 사용자가 알아서 하면 된다라는 것..
-  - custom method를 추가하는 것도 ActiveRecord와 다르다.
-  ```js
-  // Active record의 custom method 만드는 방법.
-    export class User extends BaseEntity {
-      ...
-      static findByName(firstName: string, lastName: string) {
-        return this.createQueryBuilder("user").
-        where("user.firstName = :firstName", {firstName}).
-        andWhere("user.lastName = :lastName", {lastName}).
-        getMany();
-      }
-    }
-  // Data mapper의 custom method 만드는 방법.
-  export class UserRepository extends Repository<User> {
-    findByName (firstName: string, lastName: string) {
-      static findByName(firstName: string, lastName: string) {
-        return this.createQueryBuilder("user").
-        where("user.firstName = :firstName", {firstName}).
-        andWhere("user.lastName = :lastName", {lastName}).
-        getMany();
-      }
+    static findByName(firstName: string, lastName: string) {
+      return this.createQueryBuilder("user").
+      where("user.firstName = :firstName", {firstName}).
+      andWhere("user.lastName = :lastName", {lastName}).
+      getMany();
     }
   }
-  ```
+// Data mapper의 custom method 만드는 방법.
+export class UserRepository extends Repository<User> {
+  findByName (firstName: string, lastName: string) {
+    static findByName(firstName: string, lastName: string) {
+      return this.createQueryBuilder("user").
+      where("user.firstName = :firstName", {firstName}).
+      andWhere("user.lastName = :lastName", {lastName}).
+      getMany();
+    }
+  }
+}
+```
 
-  - 이렇듯 방법이 서로 다름.
+- 이렇듯 방법이 서로 다름.
+- nestjs 에서는 data mapper를 사용한다고 한다.
 
-  
+## 2. Injection the repository
+
+- 먼저 모듈에서 TypeOrmModule를 로드해야 한다.
+- RestaurantsService도 연결해줘야 한다.
+
+```js
+@Module({
+  // 추가.
+  imports: [TypeOrmModule.forFeature([Restaurant])],
+  providers: [RestaurantsResolver, RestaurantsService],
+})
+```
+
+- 정리
+  restaurant module
+
+  - service -> database에 접근 -> database data 넘겨줌 -> resolver -> graphql resolver
+
+- data mapper를 추천한 이유는 nestjs 의 service를 이용함에 있어서
+  - @InjectRepository()를 이용할 수 있기 때문에.. 더 간편해서.
+  - 정리하자면 typeorm과 nestjs를 연결하기 위해서는
+  1. module에서 typeorm module 연결
+  2. service에서 repository (InjectRepository)가져오기.
+
+## 3. Mapped Types
+
+- Partial, pick, omit, intersection, composition
+- 삽질 기록
+
+  - dto에서 type이 arg타입인지 input 타입인지 확인하고
+
+    - mutation이나 query에서 arg타입인지 input 타입인지 같아야 한다.
+    - 이거 원인 찾는다고 30분을 해맸다.
+
+  - validation은 object type에서 해도 되므로 entity로 옮기면 된다.

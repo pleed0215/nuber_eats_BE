@@ -38,7 +38,7 @@ console.log(
       port: 32788,
       username: 'postgres',
       database: 'nuber-eats',
-      logging: true,
+      logging: process.env.NODE_ENV !== 'prod',
       password: process.env['POSTGRES_PASSWORD'],
       entities: [Restaurant],
       synchronize: process.env.NODE_ENV !== 'prod',

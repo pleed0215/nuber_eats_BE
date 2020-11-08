@@ -1,11 +1,18 @@
+import { Restaurant } from '../entities/restaurant.entity';
 import 'reflect-metadata';
-import { ArgsType, Field, InputType } from '@nestjs/graphql';
+import { ArgsType, Field, InputType, OmitType } from '@nestjs/graphql';
 import { IsBoolean, IsString, Length } from 'class-validator';
 
-//@InputType()
-@ArgsType()
-export class CreateRestaurantDto {
-  @Field(type => String)
+//@ArgsType()
+@InputType()
+export class CreateRestaurantDto extends OmitType(
+  Restaurant,
+  ['id'],
+  InputType,
+) {}
+// mapped type으로 인해 정의 안해도 된다.
+// 3번째 argument는 생략되어 있으면, 부모의 decorator와 동일하고, 주어진다면 그 decorator를 따라간다.
+/*@Field(type => String)
   @IsString()
   @Length(5, 20)
   name: string;
@@ -21,4 +28,7 @@ export class CreateRestaurantDto {
   @Field(type => String)
   @IsString()
   ownerName: string;
-}
+
+  @Field(type => String)
+  @IsString()
+  categoryName: string;*/
