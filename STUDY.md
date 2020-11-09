@@ -300,5 +300,8 @@ export class UserRepository extends Repository<User> {
 - IsOptional()
 
 - UpdatedRestaurantDto에서 PartialType으로 CreateRestaurantDto를 상속 받아서 사용하였는데
+
   - id가 필요하므로, Restaurant를 PartialType으로 해도 되지 않을까??
   - 그런데 id는 필수이지 optional이 아니므로, id 필드를 추가해주는 방향으로 한 것.
+
+- update는 criteria의 유효성을 검증하지 않으므로, 이를테면 다른 id를 넣어줘도 ok로 update를 해버린다.
