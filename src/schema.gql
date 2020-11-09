@@ -11,13 +11,27 @@ type Restaurant {
   categoryName: String!
 }
 
+type User {
+  email: String!
+  password: String!
+  role: UserRole!
+}
+
+enum UserRole {
+  Client
+  Owner
+  Delivery
+}
+
 type Query {
   restaurants: [Restaurant!]!
+  hi: Boolean!
 }
 
 type Mutation {
   createRestaurant(input: CreateRestaurantDto!): Boolean!
   updateRestaurant(id: Float!, data: UpdateRestaurantInputType!): Boolean!
+  createUser(input: CreateUserInput!): User!
 }
 
 input CreateRestaurantDto {
@@ -34,4 +48,10 @@ input UpdateRestaurantInputType {
   address: String
   ownerName: String
   categoryName: String
+}
+
+input CreateUserInput {
+  email: String!
+  password: String!
+  role: UserRole!
 }

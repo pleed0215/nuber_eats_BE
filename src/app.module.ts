@@ -8,6 +8,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
 import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import * as Joi from 'joi';
+import { User } from './users/entities/user.entity';
 
 console.log(
   join(
@@ -42,7 +43,7 @@ console.log(
       database: 'nuber-eats',
       logging: process.env.NODE_ENV !== 'prod',
       password: process.env['POSTGRES_PASSWORD'],
-      entities: [Restaurant],
+      entities: [Restaurant, User],
       synchronize: process.env.NODE_ENV !== 'prod',
     }),
     RestaurantsModule,

@@ -305,3 +305,9 @@ export class UserRepository extends Repository<User> {
   - 그런데 id는 필수이지 optional이 아니므로, id 필드를 추가해주는 방향으로 한 것.
 
 - update는 criteria의 유효성을 검증하지 않으므로, 이를테면 다른 id를 넣어줘도 ok로 update를 해버린다.
+
+* enum type을 등록하려면 -> graphql & typeorm 에 등록해야 한다.
+  - typeorm에 등록하는 방법
+    - @Column({type: 'enum', enum: UserRole})
+  - graphql에 등록
+    - registerEnum(UserRole, {name: "UserRole"})
