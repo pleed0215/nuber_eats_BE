@@ -23,6 +23,18 @@ enum UserRole {
   Delivery
 }
 
+type CreateUserOutput {
+  error: String
+  ok: Boolean!
+  data: User
+}
+
+type LoginOutput {
+  error: String
+  ok: Boolean!
+  token: String
+}
+
 type Query {
   restaurants: [Restaurant!]!
   hi: Boolean!
@@ -31,7 +43,8 @@ type Query {
 type Mutation {
   createRestaurant(input: CreateRestaurantDto!): Boolean!
   updateRestaurant(id: Float!, data: UpdateRestaurantInputType!): Boolean!
-  createUser(input: CreateUserInput!): User!
+  createUser(input: CreateUserInput!): CreateUserOutput!
+  login(email: String!, password: String!): LoginOutput!
 }
 
 input CreateRestaurantDto {

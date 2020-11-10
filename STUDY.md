@@ -310,4 +310,24 @@ export class UserRepository extends Repository<User> {
   - typeorm에 등록하는 방법
     - @Column({type: 'enum', enum: UserRole})
   - graphql에 등록
-    - registerEnum(UserRole, {name: "UserRole"})
+    - registerEnumType(UserRole, {name: "UserRole"})
+
+## 4. Entity Listener
+
+- decorator를 이용하여 event listener를 만든다.
+- AfterLoad, AfterInsert, BeforeInsert, BeforeUpdate, AfterUpdate, BeforeRemove, AfterRemove,
+
+  ```js
+  @Entity()
+  export class Post {
+    @AfterLoad()
+    updateCountries() {
+      if (this.likesCount === undefined) this.likesCount = 0;
+    }
+  }
+  ```
+
+  ## 5. node.bcrypt.js
+
+  - hash password package
+  - bcrypt. hash. compare만 알면 된다.
