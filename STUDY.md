@@ -331,3 +331,70 @@ export class UserRepository extends Repository<User> {
 
   - hash password package
   - bcrypt. hash. compare만 알면 된다.
+
+# 5 User Authentication
+
+- jsonwebtoken install
+- google에 secret key generator를 이용해서 secretkey를 만든 후 env에 때려 넣자.
+
+## ConfigService
+
+- @Module에 TypeOrmModule 사용한 것처럼, ConfigService를 import해서 사용.
+
+  - import: [ConfigService]
+  - service.ts -> private readonly config: ConfigService를 추가한다.
+  - 그냥 nestjs way라고 생각하면 될 것같다. 사실 process.env.SECRET_KEY 써도 상관 없다.
+  - 이렇게 하면 this.config.get('SECRET_KEY');라 해야 한다.
+
+- jwt token 넘겨줄 때에는 password를 넘겨주진 말자.
+
+## JwtModule & Making Global Module
+
+- passport 대신 jwtmodule을 만들어보자.
+
+```js
+@Module({
+  providers: [JwtService],
+})
+@Global()
+export class JwtModule {
+  static forRoot(): DynamicModule {
+    return {
+      module: JwtModule,
+      providers: [
+        {
+          provide: 'OPTIONS',
+          useValue: options,
+        },
+        JwtService,
+      ],
+      exports: [JwtService],
+    };
+  }
+}
+```
+
+- custom value를 전달할 수 있는데 위와 같은 방법으로 해주면 된다.
+- providers: [ JwtService ]는 원래
+
+  ```js
+  providers: [{ provide: JwtService, useClass: JwtService }];
+  ```
+
+  의 줄임 형태
+
+- @Global을 줘야 global로 사용 가능.
+
+```js
+@Injectable()
+export class JwtService {
+  constructor(@Inject('OPTIONS') private readonly options: JwtModuleOptions) {
+    console.log(options);
+  }
+  hello() {
+    console.log('hello');
+  }
+}
+```
+
+- service에서 강의 내용과는 다르게 'OPTIONS'를 exports해야 작동을 한다.

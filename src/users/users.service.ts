@@ -5,14 +5,21 @@ import { Repository } from 'typeorm';
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
-import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from 'src/jwt/jwt.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
+    private readonly config: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
+  // createUser
+  // 1. find with email whether user eixst.
+  // 2. if user exist, return fail or create user.
   async createUser({
     email,
     role,
@@ -24,14 +31,12 @@ export class UsersService {
         return {
           ok: false,
           error: 'The email address is arleady exist. Use another please.',
-          data: null,
         };
       } else {
         const newUser = this.users.create({ email, password, role });
         await this.users.save(newUser);
         return {
           ok: true,
-          error: '',
           data: newUser,
         };
       }
@@ -39,35 +44,36 @@ export class UsersService {
       console.log(e);
       return {
         ok: false,
-        data: null,
         error: 'An error occured when creating a user accound.',
       };
     }
   }
 
+  // login
   async login({ email, password }: LoginInput): Promise<LoginOutput> {
     try {
       const user = await this.users.findOne({ email });
 
       if (user) {
         if (await user.checkPassword(password)) {
+          const token = jwt.sign(
+            { id: user.id },
+            this.config.get('SECRET_KEY'),
+          );
           return {
             ok: true,
-            error: '',
-            token: 'correct',
+            token,
           };
         } else {
           return {
             ok: false,
             error: 'Your password is wrong!',
-            token: 'wrong!',
           };
         }
       } else {
         return {
           ok: false,
           error: `Cannot find user email: ${email} in users.service.ts`,
-          token: '',
         };
       }
     } catch (e) {
@@ -75,7 +81,6 @@ export class UsersService {
       return {
         ok: false,
         error: 'Login failed. This is from login method of users.service.ts',
-        token: '',
       };
     }
   }

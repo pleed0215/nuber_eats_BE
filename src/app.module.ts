@@ -9,7 +9,9 @@ import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import * as Joi from 'joi';
 import { User } from './users/entities/user.entity';
+import { JwtModule } from './jwt/jwt.module';
 
+console.log(process.env.NODE_ENV);
 console.log(
   join(
     __dirname,
@@ -18,6 +20,7 @@ console.log(
     '*.entity.{ts,.js}',
   ),
 );
+// secret key: FHaITMZg4S6Y8aooKl1O1YPTSIxDW5Vz
 
 @Module({
   imports: [
@@ -30,6 +33,7 @@ console.log(
           .valid('dev', 'prod')
           .default('dev'),
         POSTGRES_PASSWORD: Joi.string().required(),
+        SECRET_KEY: Joi.string().required(),
       }),
     }),
     GraphQLModule.forRoot({
@@ -47,8 +51,10 @@ console.log(
       synchronize: process.env.NODE_ENV !== 'prod',
     }),
     RestaurantsModule,
+    JwtModule.forRoot({ secretKey: process.env.SECRET_KEY }),
     UsersModule,
     CommonModule,
+    JwtModule,
   ],
   controllers: [],
   providers: [],
