@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
-import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from 'src/jwt/jwt.service';
 
@@ -56,10 +55,7 @@ export class UsersService {
 
       if (user) {
         if (await user.checkPassword(password)) {
-          const token = jwt.sign(
-            { id: user.id },
-            this.config.get('SECRET_KEY'),
-          );
+          const token = this.jwtService.sign({ id: user.id });
           return {
             ok: true,
             token,
