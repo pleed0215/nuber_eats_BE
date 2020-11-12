@@ -534,7 +534,7 @@ const decoded = this.jwtService.verify(token.toString());
   1. trying login
   2. if login is success get a token -> JwtService.sign
   3. using token, put it in request.header -> 이건 아마도 client에서 graphql에 request를 할 때 header에 받은 token정보를 넘겨줄 것이다.
-  4. if token exist, get a user information -> in jwt.middleware
+  4. if token exist, get a user information -> in jwt.middleware -> req['user']=user;
   5. and graphql context also take the user information too.
   6. now graphql can use user information and authentication is done.
 
