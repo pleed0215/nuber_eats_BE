@@ -537,3 +537,39 @@ const decoded = this.jwtService.verify(token.toString());
   4. if token exist, get a user information -> in jwt.middleware
   5. and graphql context also take the user information too.
   6. now graphql can use user information and authentication is done.
+
+### 7. Auth module, Auth Guard
+
+여기까지 따라오는 것도 쉽지 않았는데(새로운 내용이 많으면 항상 어려운 법), 갑자기 지금 사용방법이 섹시하지 않다면서 다른 내용을 설명해준다.
+
+#### UseGuards
+
+```js
+@Injectable()
+export class AuthGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> {}
+}
+```
+
+- 이건 딱히 Auth에만 사용할 수 있는 것은 아닌 것 같다.
+- canActiate가 참/거짓이냐에 따라 결과 행동이 달라진다.
+- 어디서 사용할 수 있냐하면.
+- 그 user.resolve.ts의 me query에 보면
+
+```js
+ @Query(returns => User, { nullable: true })
+ @UseGuards(AuthGuard)
+ me(@Context() context): User {
+   return context['user'];
+ }
+```
+
+- 이렇게 추가해서 사용할 수 있다.
+- **@UseGuards**의 결과값에 따라 'forbidden resource' 에러 메시지를 내보내면서 작동 여부를 선택할 수 있는 것.
+
+<code js>const gqlContedt = GqlExecutionContext.create(context).getContext(); </code>
+
+- 나는 솔직히 nestjs나 graphql의 사용 잇점을 아직 잘 모르겠다. 복잡만 해지는 것 같구..
+- 사람들이 다 사용하는 데에는 이유가 있을 것..
+
+- 강의 중에 UserGuard decorator를 계속 사용하는 건 보어링 하다면서..

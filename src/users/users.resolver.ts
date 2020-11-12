@@ -1,5 +1,7 @@
+import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Query } from '@nestjs/graphql';
 import { Resolver } from '@nestjs/graphql';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
@@ -43,7 +45,15 @@ export class UsersResolver {
     }
   }
 
+  // due to use Guard concept in nestjs, this code was changed.
+  // but for studying, i left this code.
+  /*@Query(returns => User, { nullable: true })
+  me(@Context() context): User {
+    return context['user'];
+  }*/
+
   @Query(returns => User, { nullable: true })
+  @UseGuards(AuthGuard)
   me(@Context() context): User {
     return context['user'];
   }
