@@ -38,6 +38,7 @@ type LoginOutput {
 type Query {
   restaurants: [Restaurant!]!
   hi: Boolean!
+  me: User
 }
 
 type Mutation {

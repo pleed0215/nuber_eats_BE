@@ -55,7 +55,7 @@ export class UsersService {
 
       if (user) {
         if (await user.checkPassword(password)) {
-          const token = this.jwtService.sign({ id: user.id });
+          const token = this.jwtService.sign(user.id);
           return {
             ok: true,
             token,
@@ -79,5 +79,9 @@ export class UsersService {
         error: 'Login failed. This is from login method of users.service.ts',
       };
     }
+  }
+
+  async findById(id: number): Promise<User> {
+    return await this.users.findOne({ id });
   }
 }

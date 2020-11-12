@@ -1,4 +1,4 @@
-import { Args, Mutation, Query } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query } from '@nestjs/graphql';
 import { Resolver } from '@nestjs/graphql';
 
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
@@ -41,5 +41,10 @@ export class UsersResolver {
         error: 'An error occured while login',
       };
     }
+  }
+
+  @Query(returns => User, { nullable: true })
+  me(@Context() context): User {
+    return context['user'];
   }
 }

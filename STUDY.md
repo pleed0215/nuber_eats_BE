@@ -398,3 +398,142 @@ export class JwtService {
 ```
 
 - service에서 강의 내용과는 다르게 'OPTIONS'를 exports해야 작동을 한다.
+
+## middleware in nestjs
+
+- jwt token을 어떻게 넘겨줘야 하나?
+- REST API 때 처럼 header로 정보를 넘겨주면 된다.
+- header의 정보를 어떻게 받나?
+
+  - 여기서 필요한게 middleware인 듯.
+  - express의 미들웨어와 개념이 비슷하다.
+
+### 1. class middleware
+
+```js
+export class JwtMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    console.log(req.headers);
+    next();
+  }
+}
+```
+
+- implements는 extends와는 달리 interface를 상속 받기 때문에, 구현부가 하나도 없다고 생각하면 된다.
+- Request, Response, NextFunction은 모두 express에서 import해야 한다.
+- 결론은, express의 middleware와 같다. 그래서 next()까지 호출해주는 것.
+- 나머지 단계는 그럼 middleware를 어떻게 install 할 것인가..? - express같은 경우는 app.use(~~)하면 되었지만..
+
+### 2. middleware install - 1
+
+        ```js
+        export class AppModule implements NestModule {
+          configure(consumer: MiddlewareConsumer) {
+            consumer
+              .apply(JwtMiddleware)
+              .forRoutes({ path: '/graphql', method: RequestMethod.POST });
+          }
+        }
+        ```
+
+        - nestjs의 경우 어떤 앱애도 설치할 수 있다고 한다.
+        - forRoutes말고 exclude method도 있다.
+        - class 말고 function 형태로도 middleware를 만들 수가 있다.
+
+### 3. functional middleware
+
+        ```js
+          export function jwtMiddleware (req: Request, res: Response, next: NextFunction) {
+            console.log(req.headers);
+            next();
+        }
+        ```
+        - 물론 AppModule에서도 apply 부분을 수정해줘야 한다.
+
+### 4. middleware install -2
+
+- main.ts에서 express way로 middleware install도 가능하다.
+
+  ```js
+  // main.ts
+  async function bootstrap() {
+    ...
+    app.use(jwtMiddleware);
+    ...
+  }
+
+  ```
+
+  - class 형태로는 안되고 functional 만 가능.
+  -
+
+### 5. headers check
+
+```js
+if ('x-jwt' in req.headers) {
+  console.log(req.headers['x-jwt']);
+}
+```
+
+- js에 in이 있는지 몰랐당..;;
+
+### 6. decode jwt
+
+- jwt.decode or verify method
+- JwtService에 verfiy method를 추가하고, middleware에서 사용하려고 하는데,
+- import를 해야 할 것인데 어떤 방법으로..?
+- 정답은 @Injectable을 이용하면 된다.
+
+```js
+@Injectable()
+export class JwtMiddleware implements NestMiddleware {
+    constructor(private readonly jwtService: JwtService) {}
+    ...
+```
+
+- 이렇게 하면 JwtService를 사용할 수 있다.
+  !! 이해가 안되는 부분
+
+```js
+const token = req.headers['x-jwt'];
+console.log(typeof token);
+const decoded = this.jwtService.verify(token.toString());
+```
+
+- 왜 이렇게 써야 할까.. typescript에서 에러를 내뿜는다. token이 string[]이라구하면서..
+- req['user'] = user 넘기는 부분까지는 별로 문제가 없다.
+
+### 7. Graphql context
+
+- apollo server에서 사용하는 context 개념이라는데..
+- A request context is avaiable for each request.
+- context is defined as a function and it will be called on each request and will received an object containing a req property, which is request.
+- apollo-server에 관련된 내용이기 때문에 GraphQLModule에서 설정 들어가야 하기 땜에, AppModule로 이동해서 설정해준다.
+  ```js
+  // app.module.ts
+  @Module ({
+    ...
+    GraphQLModule.forRoot({
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      context: ({ req }) => ({ user: req['user'] }),
+    }),
+    ...
+  })
+  ```
+- 이렇게 해줘야 하는 이유는 nestjs와 graphql의 연결 때문인 것으로 생각할 수 있다.
+
+```js
+  @Query(returns => User)
+  me(@Context() context): User {
+    return context['user'];
+  }
+```
+
+- 그러면 이렇게 연결해서 사용해 줄 수 있다.
+- 로그인 단계를 정리하자면
+  1. trying login
+  2. if login is success get a token -> JwtService.sign
+  3. using token, put it in request.header -> 이건 아마도 client에서 graphql에 request를 할 때 header에 받은 token정보를 넘겨줄 것이다.
+  4. if token exist, get a user information -> in jwt.middleware
+  5. and graphql context also take the user information too.
+  6. now graphql can use user information and authentication is done.
