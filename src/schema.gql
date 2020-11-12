@@ -12,10 +12,18 @@ type Restaurant {
 }
 
 type User {
+  id: Float!
+  createAt: DateTime!
+  updatedAt: DateTime!
   email: String!
   password: String!
   role: UserRole!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 enum UserRole {
   Client
@@ -35,10 +43,23 @@ type LoginOutput {
   token: String
 }
 
+type UpdateProfileOutput {
+  error: String
+  ok: Boolean!
+  updated: User
+}
+
+type UserProfileOutput {
+  error: String
+  ok: Boolean!
+  user: User
+}
+
 type Query {
   restaurants: [Restaurant!]!
   hi: Boolean!
   me: User
+  userProfile(userId: Float!): UserProfileOutput!
 }
 
 type Mutation {
@@ -46,6 +67,7 @@ type Mutation {
   updateRestaurant(id: Float!, data: UpdateRestaurantInputType!): Boolean!
   createUser(input: CreateUserInput!): CreateUserOutput!
   login(email: String!, password: String!): LoginOutput!
+  updateProfile(update: UpdateProfileInput!): UpdateProfileOutput!
 }
 
 input CreateRestaurantDto {
@@ -68,4 +90,13 @@ input CreateUserInput {
   email: String!
   password: String!
   role: UserRole!
+}
+
+input UpdateProfileInput {
+  id: Float
+  createAt: DateTime
+  updatedAt: DateTime
+  email: String
+  password: String
+  role: UserRole
 }

@@ -7,6 +7,10 @@ import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from 'src/jwt/jwt.service';
+import {
+  UpdateProfileInput,
+  UpdateProfileOutput,
+} from './dtos/update-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -83,5 +87,25 @@ export class UsersService {
 
   async findById(id: number): Promise<User> {
     return await this.users.findOne({ id });
+  }
+
+  async update(
+    userId: number,
+    updatedInput: UpdateProfileInput,
+  ): Promise<UpdateProfileOutput> {
+    try {
+      const user = await this.findById(userId);
+      if (!user) throw Error(`User ID: ${userId} user is not found`);
+      await this.users.update({ id: userId }, { ...updatedInput });
+      return {
+        ok: true,
+        updated: user,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
   }
 }

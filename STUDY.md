@@ -60,7 +60,7 @@ export class CreateRestaurantDto {
 - @InputType과 @ArgsType
   - 강의에서 입력하기 힘들다 하면서 갑자기 바꿈.
   - 그도 그럴만한게..
-  ```graphql
+  ```gql
     mutation {
       createRestaurant(createRestaurantInput: {
         name: ""
@@ -104,7 +104,7 @@ export class CreateRestaurantDto {
 
     - resolver 파일의 Boolean 타입은 graphql type이다.
 
-3. class-validator package
+1. class-validator package
 
 - npm i calss-validator class-transformer
 -
@@ -544,6 +544,10 @@ const decoded = this.jwtService.verify(token.toString());
 
 #### UseGuards
 
+- 내 생각에는 위의 내용과 여기 내용은 다르다.
+- 토큰 얻어오는 부분과 얻은 토큰으로 Authorization 한다는 것이므로 엄연히 다른 부분이다.
+- UseGuards는 AuthGuard라는 클래스를 만듬으로써, Authentication을 관리하는 것.
+
 ```js
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -573,3 +577,28 @@ export class AuthGuard implements CanActivate {
 - 사람들이 다 사용하는 데에는 이유가 있을 것..
 
 - 강의 중에 UserGuard decorator를 계속 사용하는 건 보어링 하다면서..
+
+### 8. Custom decorator for AuthUser
+
+```js
+export const AuthUser = createParamDecorator(
+  (data: unknown, context: ExecutionContext) => {
+    const gqlContext = GqlExecutionContext.create(context).getContext();
+    const user = gqlContext['user'];
+    return user;
+  },
+);
+```
+
+이렇게 만들고,
+
+```js
+@Query(returns => User, { nullable: true })
+  @UseGuards(AuthGuard)
+  me(@AuthUser() authUser:User): User {
+    return authUser;
+  }
+```
+
+- 이렇게 사용해주면 된다고 한다.
+-
