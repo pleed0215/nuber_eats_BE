@@ -610,3 +610,4 @@ export const AuthUser = createParamDecorator(
 - save method를 보면 entity가 없으면 record를 만들고 없다면 update를 한다.
 
 - update profile과 update password를 분리할까?? 하는 고민이 생긴다.
+- 나는 분리했다.
