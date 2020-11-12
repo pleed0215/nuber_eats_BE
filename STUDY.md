@@ -602,3 +602,11 @@ export const AuthUser = createParamDecorator(
 
 - 이렇게 사용해주면 된다고 한다.
 -
+
+### 9. save method & update method
+
+- password hashing을 위해 entity에서 @BeforeUpdate를 사용해야 하는데..
+- entity의 update 메소드를 사용하면 @BeforeUpdate를 호출 하지 않는다.
+- save method를 보면 entity가 없으면 record를 만들고 없다면 update를 한다.
+
+- update profile과 update password를 분리할까?? 하는 고민이 생긴다.

@@ -8,6 +8,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import {
+  UpdatePasswordInput,
   UpdateProfileInput,
   UpdateProfileOutput,
 } from './dtos/update-profile.dto';
@@ -92,6 +93,52 @@ export class UsersResolver {
     @AuthUser() user: User,
     @Args('update') update: UpdateProfileInput,
   ): Promise<UpdateProfileOutput> {
-    return await this.usersService.update(user.id, update);
+    try {
+      const updatedUser = await this.usersService.updateProfile(
+        user.id,
+        update,
+      );
+
+      return {
+        ok: true,
+        updated: user,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(returns => LoginOutput)
+  async updatePassword(
+    @AuthUser() user: User,
+    @Args() passwordInput: UpdatePasswordInput,
+  ): Promise<LoginOutput> {
+    try {
+      const result = await this.usersService.updatePassword(
+        user.id,
+        passwordInput.password,
+      );
+
+      if (result) {
+        return await this.usersService.login({
+          email: user.email,
+          password: passwordInput.password,
+        });
+      } else {
+        return {
+          ok: false,
+          error: 'While updating password, an error occured.',
+        };
+      }
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
   }
 }

@@ -68,6 +68,7 @@ type Mutation {
   createUser(input: CreateUserInput!): CreateUserOutput!
   login(email: String!, password: String!): LoginOutput!
   updateProfile(update: UpdateProfileInput!): UpdateProfileOutput!
+  updatePassword(password: String!): LoginOutput!
 }
 
 input CreateRestaurantDto {
@@ -93,10 +94,8 @@ input CreateUserInput {
 }
 
 input UpdateProfileInput {
-  id: Float
   createAt: DateTime
   updatedAt: DateTime
   email: String
-  password: String
   role: UserRole
 }
