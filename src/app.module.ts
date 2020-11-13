@@ -17,6 +17,7 @@ import { User } from './users/entities/user.entity';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
+import { Verification } from './users/entities/verification.entity';
 
 console.log(process.env.NODE_ENV);
 console.log(
@@ -55,7 +56,7 @@ console.log(
       database: 'nuber-eats',
       logging: process.env.NODE_ENV !== 'prod',
       password: process.env['POSTGRES_PASSWORD'],
-      entities: [Restaurant, User],
+      entities: [Restaurant, User, Verification],
       synchronize: process.env.NODE_ENV !== 'prod',
     }),
     RestaurantsModule,

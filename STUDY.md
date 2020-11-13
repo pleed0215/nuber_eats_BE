@@ -611,3 +611,216 @@ export const AuthUser = createParamDecorator(
 
 - update profile과 update password를 분리할까?? 하는 고민이 생긴다.
 - 나는 분리했다.
+
+## 6 Email verification
+
+### 1. One-to-One Relationship
+
+- @OneToOne
+- @JoinColumn
+  JoinColumn은 한 쪽에만..두 쪽에 다 있으면 안되고,
+
+  - 예시 코드, [출처](https://orkhan.gitbook.io/typeorm/docs/one-to-one-relations)
+
+  ```js
+  import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+  import { User } from './User';
+
+  @Entity()
+  export class Profile {
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column()
+    gender: string;
+
+    @Column()
+    photo: string;
+
+    @OneToOne(
+      type => User,
+      user => user.profile,
+    ) // specify inverse side as a second parameter
+    user: User;
+  }
+  ```
+
+  - JoinColumn은 두쪽에 다 있을 필요가 없다.
+
+  ```js
+  import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    OneToOne,
+    JoinColumn,
+  } from 'typeorm';
+  import { Profile } from './Profile';
+
+  @Entity()
+  export class User {
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column()
+    name: string;
+
+    @OneToOne(
+      type => Profile,
+      profile => profile.user,
+    ) // specify inverse side as a second parameter
+    @JoinColumn()
+    profile: Profile;
+  }
+  ```
+
+### 2. verification
+
+- user create를 했을 때 verification을 만든다.
+- profile에서 email을 업데이트했을 경우 verification을 새로 만들어야 하는데
+  - 기존의 verification은 삭제해야 한다. one-to-one relationship이기 때문에..
+- Resolver
+
+  - verification은 매우 작기 때문에 user에서 resolver도 처리한다.
+
+- relation id with entity
+
+  1. findOne에 options을 주지 않았을 때.
+
+  ```js
+  const verification = await this.verification.findOne({ code });
+  console.log(verification, verification.user);
+  ```
+
+  - 결과값
+
+  ```js
+    Verification {
+    id: 1,
+    createAt: 2020-11-12T14:31:48.556Z,
+    updatedAt: 2020-11-12T14:31:48.556Z,
+    code: '8462d3ed2b32-4368-97fb-ec40a5a5525f'
+  } undefined
+  ```
+
+  - 위에서 관계 설정한 것으로 profile.user, user.profile이 성립할 줄 알았는데,, undefined로 된다.
+  - 심지어는 userId값도 주어지지 않는다..
+
+  2. findOne에 loadRelationIds: true 옵션값을 줬을 때.
+
+  ```js
+  const verification = await this.verifications.findOne(
+    { code },
+    { loadRelationIds: true },
+  );
+  ```
+
+  - 이렇게 하면 relationId를 얻어오고 data 자체를 얻어 오는게 아니다.
+  - 결과값
+
+  ```js
+  Verification {
+  id: 1,
+  createAt: 2020-11-12T14:31:48.556Z,
+  updatedAt: 2020-11-12T14:31:48.556Z,
+  code: '8462d3ed2b32-4368-97fb-ec40a5a5525f',
+  user: 8
+  } 8
+  ```
+
+  3. findOne에 relations: ['user'] 옵션값을 줬을 때.
+
+  ```js
+  const verification = await this.verifications.findOne(
+    { code },
+    { relations: ['user'] },
+  );
+  ```
+
+  - 결과값
+
+  ```js
+    id: 1,
+    Verification {
+    createAt: 2020-11-12T14:31:48.556Z,
+    updatedAt: 2020-11-12T14:31:48.556Z,
+    code: '8462d3ed2b32-4368-97fb-ec40a5a5525f',
+    user: User {
+      id: 8,
+      createAt: 2020-11-12T14:31:48.429Z,
+      updatedAt: 2020-11-12T14:31:48.429Z,
+      email: 'pleed@nomad.com',
+      password: '$2b$10$zUoBTJqBGse6SdC1iGOR2OK2k1/qwMlfaK.sYq5rJxSglDUptKlwi',
+      role: 0,
+      verified: false
+    }
+  } User {
+    id: 8,
+    createAt: 2020-11-12T14:31:48.429Z,
+    updatedAt: 2020-11-12T14:31:48.429Z,
+    email: 'pleed@nomad.com',
+    password: '$2b$10$zUoBTJqBGse6SdC1iGOR2OK2k1/qwMlfaK.sYq5rJxSglDUptKlwi',
+    role: 0,
+    verified: false
+  }
+  ```
+
+  - 이렇게 해야 user data에 접근이 가능하다.
+  - 갑자기 django가 위대해보인다..정말 쉽고 생산성이 높은 프레임워크인 것 같다.
+
+### 3. OnetoOne cascade deleting
+
+```js
+@OneToOne(
+    type => Verification,
+    verification => verification.user,
+    { cascade: true },
+  )
+  verification: Verification;
+```
+
+- 한쪽 이렇게 설정해주고,
+
+```js
+@OneToOne(
+    type => User,
+    user => user.verification,
+    { onDelete: 'CASCADE' },
+  )
+  @JoinColumn()
+  user: User;
+```
+
+- 나머지도 이렇게 설정. cascade: true 옵션을 준다. @JoinColumn이 없는 쪽,
+- 'CASCADE' 옵션은 지움을 당하는 쪽에 설정을 해준다. @JoinColumn이 있는 쪽,
+- cascade: true는 지우는 쪽에 설정을 해준다. 라고 이해하면 될 듯하다.
+
+### 4. 꼭 중요한 건 늦게 알려주더라.
+
+- password가 console이든 어디든 안나오게 하려면, @Column({select: false})
+- 이렇게 하면 중요한 점이 그냥 query나 find하면 password가 나오지 않기 때문에..
+- select: ['password']로 다시 나오게 해야하는 과정이 필요하다.
+- 이를테면 select:false한 상태로 login하면 제대로 작동하지 않는다.
+- 왜냐하면 checkPassowrd가 this.password를 사용하기 때문에.. 그래서 select: ['password'] 옵션을 주고 로그인 해야 하는 과정이 필요하다.
+- (추가) => 'id'도 같이 select 해줘야 한다...
+
+### 5. 발견한 문제
+
+- updateProfile하고 나서 정보를 전달해주면, 수정 전의 정보가 그대로 있다.
+- 이건 아마도 request의 user정보가 수정이 안되었기 때문인 것 같은데.. 어찌..?
+
+```js
+export const User = createParamDecorator((data, req) => {
+  return req.user;
+});
+
+// And then use it like this:
+
+@UseGuards(AuthGuard())
+@Get(':id)
+async findOne(@Param('id') id, @User() user) {
+   return await this.userService.findOne(id, user);
+}
+```
+
+googling 하니 이렇게 하라고 한다.

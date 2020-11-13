@@ -5,10 +5,11 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToOne } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
 import { IsEmail, IsEnum } from 'class-validator';
+import { Verification } from './verification.entity';
 
 enum UserRole {
   Client,
@@ -28,13 +29,24 @@ export class User extends CoreEntity {
   email: string;
 
   @Field(type => String)
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @Field(type => UserRole)
   @Column({ type: 'enum', enum: UserRole })
   @IsEnum(UserRole)
   role: UserRole;
+
+  @Field(type => Boolean, { nullable: true })
+  @Column({ default: false })
+  verified: boolean;
+
+  @OneToOne(
+    type => Verification,
+    verification => verification.user,
+    { cascade: true },
+  )
+  verification: Verification;
 
   @BeforeInsert()
   @BeforeUpdate()

@@ -13,6 +13,7 @@ import {
   UpdateProfileOutput,
 } from './dtos/update-profile.dto';
 import { UserProfileInput, UserProfileOutput } from './dtos/user-profile.dto';
+import { VerificationInput, VerificationOutput } from './dtos/verification.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
@@ -61,12 +62,14 @@ export class UsersResolver {
     return context['user'];
   }*/
 
+  // me: return profile of login user.
   @Query(returns => User, { nullable: true })
   @UseGuards(AuthGuard)
   me(@AuthUser() authUser: User): User {
     return authUser;
   }
 
+  // userProfile: profile of others
   @UseGuards(AuthGuard)
   @Query(returns => UserProfileOutput)
   async userProfile(
@@ -87,6 +90,8 @@ export class UsersResolver {
     }
   }
 
+  // Mutation updateProfile
+  // update own profile except password
   @UseGuards(AuthGuard)
   @Mutation(returns => UpdateProfileOutput)
   async updateProfile(
@@ -94,15 +99,17 @@ export class UsersResolver {
     @Args('update') update: UpdateProfileInput,
   ): Promise<UpdateProfileOutput> {
     try {
-      const updatedUser = await this.usersService.updateProfile(
-        user.id,
-        update,
-      );
+      const isSuccess = await this.usersService.updateProfile(user.id, update);
 
-      return {
-        ok: true,
-        updated: user,
-      };
+      return isSuccess
+        ? {
+            ok: true,
+            updated: user,
+          }
+        : {
+            ok: false,
+            error: 'While updating profile, there was some errors.',
+          };
     } catch (e) {
       return {
         ok: false,
@@ -111,6 +118,8 @@ export class UsersResolver {
     }
   }
 
+  // Mutation password
+  // update own password
   @UseGuards(AuthGuard)
   @Mutation(returns => LoginOutput)
   async updatePassword(
@@ -138,6 +147,24 @@ export class UsersResolver {
       return {
         ok: false,
         error: e.toString(),
+      };
+    }
+  }
+
+  // Mutation verify
+  // process verification
+  @Mutation(returns => VerificationOutput)
+  async verifyCode(
+    @Args() input: VerificationInput,
+  ): Promise<VerificationOutput> {
+    if (await this.usersService.verifyCode(input)) {
+      return {
+        ok: true,
+      };
+    } else {
+      return {
+        ok: false,
+        error: 'Error on verification code.',
       };
     }
   }
