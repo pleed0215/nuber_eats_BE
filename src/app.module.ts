@@ -18,6 +18,7 @@ import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
 import { Verification } from './users/entities/verification.entity';
+import { MailModule } from './mail/mail.module';
 
 console.log(process.env.NODE_ENV);
 console.log(
@@ -42,6 +43,9 @@ console.log(
           .default('dev'),
         POSTGRES_PASSWORD: Joi.string().required(),
         SECRET_KEY: Joi.string().required(),
+        MAILGUN_APIKEY: Joi.string().required(),
+        MAILGUN_DOMAIN: Joi.string().required(),
+        MAILGUN_EMAIL: Joi.string().required(),
       }),
     }),
     GraphQLModule.forRoot({
@@ -61,10 +65,16 @@ console.log(
     }),
     RestaurantsModule,
     JwtModule.forRoot({ secretKey: process.env.SECRET_KEY }),
+    MailModule.forRoot({
+      mailgunApiKey: process.env.MAILGUN_APIKEY,
+      mailgunDomain: process.env.MAILGUN_DOMAIN,
+      mailgunEmail: process.env.MAILGUN_EMAIL,
+    }),
     UsersModule,
     CommonModule,
     JwtModule,
     AuthModule,
+    MailModule,
   ],
   controllers: [],
   providers: [],

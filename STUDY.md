@@ -809,18 +809,76 @@ export const AuthUser = createParamDecorator(
 - updateProfile하고 나서 정보를 전달해주면, 수정 전의 정보가 그대로 있다.
 - 이건 아마도 request의 user정보가 수정이 안되었기 때문인 것 같은데.. 어찌..?
 
-```js
-export const User = createParamDecorator((data, req) => {
-  return req.user;
-});
+### 6. Email moduler
 
-// And then use it like this:
+- email 관려해서는 nestjs module이 따로 있다. [링크](https://github.com/nest-modules/mailer)
 
-@UseGuards(AuthGuard())
-@Get(':id)
-async findOne(@Param('id') id, @User() user) {
-   return await this.userService.findOne(id, user);
-}
+  - pug 엔진 사용해서 템플릿을 이용해서 이메일을 보낼 수 있는 모양인데
+  - 여기서는 공부를 위해서 사용 안하겠다고 한다.
+  -
+
+#### sending email
+
+```sh
+curl -s --user 'api:YOUR_API_KEY' \
+	https://api.mailgun.net/v3/YOUR_DOMAIN_NAME/messages \
+	-F from='Excited User <mailgun@YOUR_DOMAIN_NAME>' \
+	-F to=YOU@YOUR_DOMAIN_NAME \
+	-F to=bar@example.com \
+	-F subject='Hello' \
+	-F text='Testing some Mailgun awesomeness!'
 ```
 
-googling 하니 이렇게 하라고 한다.
+- curl을 이용할 수는 없고, request 등의 라이브러리를 이용하여 fetching을 해야 한다.
+- request를 이용해서 fetching 하려고 했는데, depreacted가 되어서 GOT 패키지를 쓴다고 한다.
+
+  - <code>npm i got</code>
+
+  - `--user 'api:YOUR_API_KEY'`
+
+    - 이부분을 보낼 때 header로 정보를 보내줘야 하는데, 이건 일종의 규칙이기 때문에 그냥 알아두자.
+
+    ```js
+      headers: {
+        Authorization: `Basic ${Buffer.from(
+          `api:${this.options.mailgunApiKey}`,
+        ).toString('base64')}`,
+      },
+    ```
+
+  - `F from=~~~`
+    - 이 부분의 F는 form data 라는 패키지를 이용해야 한다.
+    - 하.. 패키지 겁나 많다. 진짜.
+    - <code> npm install form-data</code>
+    ```js
+    const form = new FormData();
+    form.append(
+      'from',
+      `Very excited user <pleed0215@${this.options.mailgunDomain}>`,
+    );
+    form.append('to', 'pleed0215@bizmeka.com');
+    form.append('subject', subject);
+    form.append('text', content);
+    ```
+    - -F 관련된 것은 이렇게 form data로 만들어준다.
+  - method는 POST로해서..
+
+  ```js
+  const response = await got(
+    `https://api.mailgun.net/v3/${this.options.mailgunDomain}/messages/`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${Buffer.from(
+          `api:${this.options.mailgunApiKey}`,
+        ).toString('base64')}`,
+      },
+      body: form,
+    },
+  );
+  ```
+
+  - 결과적으로 이렇게 보내면 OK.
+  - **_caution_**
+    - url을 https://api.mailgun.net/v3/${this.options.mailgunDomain}/messages/ 이렇게 보내면 안된다.
+    - endpoint관련 문제 때문에.. 끝에 '/'를 빼줘야 한다.

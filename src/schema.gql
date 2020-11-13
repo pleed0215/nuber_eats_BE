@@ -63,7 +63,6 @@ type VerificationOutput {
 
 type Query {
   restaurants: [Restaurant!]!
-  hi: Boolean!
   me: User
   userProfile(userId: Float!): UserProfileOutput!
 }

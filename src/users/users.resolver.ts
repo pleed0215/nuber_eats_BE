@@ -21,24 +21,9 @@ import { UsersService } from './users.service';
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Query(returns => Boolean)
-  hi(): boolean {
-    return true;
-  }
-
   @Mutation(returns => CreateUserOutput)
-  async createUser(
-    @Args('input') input: CreateUserInput,
-  ): Promise<CreateUserOutput> {
-    try {
-      return await this.usersService.createUser(input);
-    } catch (e) {
-      console.log(e);
-      return {
-        ok: false,
-        error: 'In mutation createUser, an error occured.',
-      };
-    }
+  createUser(@Args('input') input: CreateUserInput): Promise<CreateUserOutput> {
+    return this.usersService.createUser(input);
   }
 
   @Mutation(returns => LoginOutput)
