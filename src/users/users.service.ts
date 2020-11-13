@@ -15,6 +15,8 @@ import {
 import { Verification } from './entities/verification.entity';
 import { VerificationInput } from './dtos/verification.dto';
 import { AuthUser } from 'src/auth/auth.decorator';
+import { MailService } from 'src/mail/mail.service';
+import { SERVER_HOST } from 'src/common/common.constant';
 
 @Injectable()
 export class UsersService {
@@ -22,7 +24,7 @@ export class UsersService {
     @InjectRepository(User) private readonly users: Repository<User>,
     @InjectRepository(Verification)
     private readonly verifications: Repository<Verification>,
-    private readonly config: ConfigService,
+    private readonly mailService: MailService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -44,8 +46,16 @@ export class UsersService {
       } else {
         const newUser = this.users.create({ email, password, role });
         await this.users.save(newUser);
-        await this.verifications.save(
+        const newVerification = await this.verifications.save(
           this.verifications.create({ code: 'making it later', user: newUser }),
+        );
+        console.log(
+          await this.mailService.sendVerificationEmail(
+            newUser.email,
+            newUser.email,
+            SERVER_HOST,
+            newVerification.code,
+          ),
         );
         return {
           ok: true,
@@ -112,14 +122,26 @@ export class UsersService {
         loadRelationIds: true,
       });
       const { email } = updatedInput;
+      let code = null;
       if (email && email !== updatedUser.email) {
-        await this.verifications.delete(updatedUser.verification);
-        await this.verifications.save(
+        if (updatedUser.verification)
+          await this.verifications.delete(updatedUser.verification);
+        const newVerification = await this.verifications.save(
           this.verifications.create({ user: updatedUser }),
         );
+        code = newVerification.code;
         updatedInput.verified = false;
       }
       await this.users.update({ id: userId }, { ...updatedInput });
+      if (email && code)
+        console.log(
+          await this.mailService.sendVerificationEmail(
+            email,
+            email,
+            SERVER_HOST,
+            code,
+          ),
+        );
       return true;
     } catch (e) {
       console.log(e);

@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { JWT_OPTIONS } from './jwt.constant';
 import { JwtService } from './jwt.service';
 
 describe('JwtService', () => {

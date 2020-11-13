@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { MailService } from 'src/mail/mail.service';
 import { UsersService } from './users.service';
 
 describe('UsersService', () => {
