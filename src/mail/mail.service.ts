@@ -9,14 +9,17 @@ export class MailService {
   constructor(
     @Inject(MAIL_OPTIONS) private readonly options: MailModuleOptions,
   ) {
-    //this.sendEmail('to', 'Eun Deok Lee', 'http://localhost:3000', 'thisIsCode');
+    this.sendEmail('to', 'Eun Deok Lee', {
+      host: 'http://localhost:3000',
+      code: 'this_is_code',
+    });
   }
 
   private async sendEmail(
     to: string,
-    templateName: string,
     user: string,
-    data: object,
+    emailData: Object,
+    templateName = 'verification',
   ) {
     const form = new FormData();
     form.append('from', `Nuber-eats <pleed0215@${this.options.mailgunDomain}>`);
@@ -25,7 +28,10 @@ export class MailService {
       'subject',
       `Hello ${user}, this is your verification email on Nuber-Eats!`,
     );
-    form.append('template', 'verification');
+    form.append('template', templateName);
+    Object.keys(emailData).forEach(key =>
+      form.append(`v:${key}`, emailData[key]),
+    );
 
     const response = await got(
       `https://api.mailgun.net/v3/${this.options.mailgunDomain}/messages`,
