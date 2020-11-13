@@ -8,17 +8,24 @@ import * as FormData from 'form-data';
 export class MailService {
   constructor(
     @Inject(MAIL_OPTIONS) private readonly options: MailModuleOptions,
-  ) {}
+  ) {
+    //this.sendEmail('to', 'Eun Deok Lee', 'http://localhost:3000', 'thisIsCode');
+  }
 
-  private async sendEmail(to: string, subject: string, content: string) {
+  private async sendEmail(
+    to: string,
+    templateName: string,
+    user: string,
+    data: object,
+  ) {
     const form = new FormData();
-    form.append(
-      'from',
-      `Very excited user <pleed0215@${this.options.mailgunDomain}>`,
-    );
+    form.append('from', `Nuber-eats <pleed0215@${this.options.mailgunDomain}>`);
     form.append('to', 'pleed0215@bizmeka.com');
-    form.append('subject', subject);
-    form.append('text', content);
+    form.append(
+      'subject',
+      `Hello ${user}, this is your verification email on Nuber-Eats!`,
+    );
+    form.append('template', 'verification');
 
     const response = await got(
       `https://api.mailgun.net/v3/${this.options.mailgunDomain}/messages`,
@@ -32,5 +39,6 @@ export class MailService {
         body: form,
       },
     );
+    console.log(response.body);
   }
 }
