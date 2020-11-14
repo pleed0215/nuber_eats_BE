@@ -882,3 +882,33 @@ curl -s --user 'api:YOUR_API_KEY' \
   - **_caution_**
     - url을 https://api.mailgun.net/v3/${this.options.mailgunDomain}/messages/ 이렇게 보내면 안된다.
     - endpoint관련 문제 때문에.. 끝에 '/'를 빼줘야 한다.
+
+# Testing
+
+## 1. user service unit test
+
+- testing 위한 셋팅을 해야 한다고..
+- UsersService에서 import한 service들, MailService, JwtService, UserRepository.. 등 loading failture가 발생하는데..
+
+### mocking
+
+- 위 에러를 해결하기 위해서 실제로 위 서비스들을 loading 하는 것이 아니라, 흉내내는 역할을 하는 것을 사용해야 한다.
+
+```js
+const mockUserRepository = {
+  findOne: jest.fn(),
+  create: jest.fn(),
+  save: jest.fn(),
+  update: jest.fn(),
+};
+const module: TestingModule = await Test.createTestingModule({
+  providers: [
+    MailService,
+    /* 이것처럼 만들어주면 된다. 그럼 repository를 mocking 한다 */
+    {
+      provide: getRepositoryToken(User),
+      useValue: mockUserRepository,
+    },
+  ],
+}).compile();
+```

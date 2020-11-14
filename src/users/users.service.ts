@@ -1,30 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { AdvancedConsoleLogger, Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
-import { ConfigService } from '@nestjs/config';
+
 import { JwtService } from 'src/jwt/jwt.service';
-import {
-  UpdatePasswordInput,
-  UpdateProfileInput,
-  UpdateProfileOutput,
-} from './dtos/update-profile.dto';
+import { UpdateProfileInput } from './dtos/update-profile.dto';
 import { Verification } from './entities/verification.entity';
 import { VerificationInput } from './dtos/verification.dto';
-import { AuthUser } from 'src/auth/auth.decorator';
+
 import { MailService } from 'src/mail/mail.service';
 import { SERVER_HOST } from 'src/common/common.constant';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User) private readonly users: Repository<User>,
-    @InjectRepository(Verification)
-    private readonly verifications: Repository<Verification>,
     private readonly mailService: MailService,
+    @InjectRepository(Verification)
+    @InjectRepository(User)
+    private readonly users: Repository<User>,
+    private readonly verifications: Repository<Verification>,
     private readonly jwtService: JwtService,
   ) {}
 
