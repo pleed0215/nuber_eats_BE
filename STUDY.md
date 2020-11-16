@@ -949,4 +949,3 @@ const module: TestingModule = await Test.createTestingModule({
 ```
 
 - json 자리에 이거 추가 해주면 coveragePath에서 빠진다.
--
