@@ -18,9 +18,9 @@ import { SERVER_HOST } from 'src/common/common.constant';
 export class UsersService {
   constructor(
     private readonly mailService: MailService,
-    @InjectRepository(Verification)
     @InjectRepository(User)
     private readonly users: Repository<User>,
+    @InjectRepository(Verification)
     private readonly verifications: Repository<Verification>,
     private readonly jwtService: JwtService,
   ) {}

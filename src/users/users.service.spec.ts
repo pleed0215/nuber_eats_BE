@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { JwtService } from 'src/jwt/jwt.service';
 import { MAIL_OPTIONS } from 'src/mail/mail.constant';
-import { MailModuleOptions } from 'src/mail/mail.interfaces';
 import { MailService } from 'src/mail/mail.service';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { Verification } from './entities/verification.entity';
+import { UsersModule } from './users.module';
 
 import { UsersService } from './users.service';
 
@@ -17,6 +17,8 @@ const mockUserRepository = {
   update: jest.fn(),
 };
 
+const mockVerificationRepository = {};
+
 const mockJwtService = {
   sign: jest.fn(),
   verify: jest.fn(),
@@ -26,9 +28,11 @@ const mockMailService = {
   sendVerificationEmail: jest.fn(),
 };
 
+type MockRepository<T> = Partial<Record<keyof Repository<T>, jest.Mock>>;
+
 describe('UsersService', () => {
   let service: UsersService;
-
+  let userRepository: MockRepository<User>;
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -39,7 +43,7 @@ describe('UsersService', () => {
         },
         {
           provide: getRepositoryToken(Verification),
-          useValue: mockUserRepository,
+          useValue: mockVerificationRepository,
         },
         {
           provide: JwtService,
@@ -61,9 +65,14 @@ describe('UsersService', () => {
     }).compile();
 
     service = module.get<UsersService>(UsersService);
+    userRepository = module.get(getRepositoryToken(User));
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('createUser', () => {
+    it('should fail if user exits', () => {});
   });
 });

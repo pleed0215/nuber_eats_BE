@@ -912,3 +912,9 @@ const module: TestingModule = await Test.createTestingModule({
   ],
 }).compile();
 ```
+
+### mocking repository
+
+```js
+  let userRepository:Partial<Record<keyof Repository<User>, jest.Mock>>;
+```
