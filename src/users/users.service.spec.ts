@@ -10,14 +10,12 @@ import { UsersModule } from './users.module';
 
 import { UsersService } from './users.service';
 
-const mockUserRepository = {
+const mockRepository = () => ({
   findOne: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
   update: jest.fn(),
-};
-
-const mockVerificationRepository = {};
+});
 
 const mockJwtService = {
   sign: jest.fn(),
@@ -33,17 +31,19 @@ type MockRepository<T> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 describe('UsersService', () => {
   let service: UsersService;
   let userRepository: MockRepository<User>;
+  let verificationRepository: MockRepository<Verification>;
+
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {
           provide: getRepositoryToken(User),
-          useValue: mockUserRepository,
+          useValue: mockRepository(),
         },
         {
           provide: getRepositoryToken(Verification),
-          useValue: mockVerificationRepository,
+          useValue: mockRepository(),
         },
         {
           provide: JwtService,
@@ -66,6 +66,7 @@ describe('UsersService', () => {
 
     service = module.get<UsersService>(UsersService);
     userRepository = module.get(getRepositoryToken(User));
+    verificationRepository = module.get(getRepositoryToken(Verification));
   });
 
   it('should be defined', () => {
@@ -73,23 +74,38 @@ describe('UsersService', () => {
   });
 
   describe('createUser', () => {
+    const createUserArgs = {
+      email: 'testing@email.com',
+      role: 0,
+      password: 'testing',
+    };
     it('should fail if user exits', async () => {
-      userRepository.findOne.mockResolvedValue({
-        id: 1,
-        email: 'testing@email.com',
-        role: 0,
-      });
+      userRepository.findOne.mockResolvedValueOnce(createUserArgs);
+      userRepository.create.mockReturnValue(createUserArgs);
+      userRepository.save.mockResolvedValue(createUserArgs);
 
-      const result = await service.createUser({
-        email: 'testing@email.com',
-        role: 0,
-        password: 'testing',
-        verified: false,
-      });
+      verificationRepository.save.mockResolvedValue({ user: createUserArgs });
+      verificationRepository.create.mockReturnValue({ user: createUserArgs });
+
+      const result = await service.createUser(createUserArgs);
 
       expect(result).toMatchObject({
         ok: false,
         error: 'The email address is arleady exist. Use another please.',
+      });
+    });
+
+    it('should create user', async () => {
+      userRepository.findOne.mockResolvedValue(undefined);
+      await service.createUser(createUserArgs);
+      expect(userRepository.create).toHaveBeenCalledTimes(1);
+      expect(userRepository.create).toHaveBeenCalledWith(createUserArgs);
+      expect(userRepository.save).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith(createUserArgs);
+
+      expect(verificationRepository.save).toHaveBeenCalledTimes(1);
+      expect(verificationRepository.save).toHaveBeenCalledWith({
+        user: createUserArgs,
       });
     });
   });

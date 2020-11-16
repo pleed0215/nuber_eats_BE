@@ -44,15 +44,13 @@ export class UsersService {
         const newUser = this.users.create({ email, password, role });
         await this.users.save(newUser);
         const newVerification = await this.verifications.save(
-          this.verifications.create({ code: 'making it later', user: newUser }),
+          this.verifications.create({ user: newUser }),
         );
-        console.log(
-          await this.mailService.sendVerificationEmail(
-            newUser.email,
-            newUser.email,
-            SERVER_HOST,
-            newVerification.code,
-          ),
+        await this.mailService.sendVerificationEmail(
+          email,
+          email,
+          SERVER_HOST,
+          newVerification.code,
         );
         return {
           ok: true,

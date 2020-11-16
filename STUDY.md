@@ -937,3 +937,16 @@ const module: TestingModule = await Test.createTestingModule({
   를 해주면 된다.
 
   - 이렇게 해주면 findOne은 위에서 설정해준 값을 리턴해준다.
+
+### coveragePathIgnorePatterns
+
+```js
+    "coveragePathIgnorePatterns": [
+      "node_modules",
+      ".entity.ts",
+      ".constant.ts"
+    ]
+```
+
+- json 자리에 이거 추가 해주면 coveragePath에서 빠진다.
+-
