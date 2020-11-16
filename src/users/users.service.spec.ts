@@ -73,6 +73,24 @@ describe('UsersService', () => {
   });
 
   describe('createUser', () => {
-    it('should fail if user exits', () => {});
+    it('should fail if user exits', async () => {
+      userRepository.findOne.mockResolvedValue({
+        id: 1,
+        email: 'testing@email.com',
+        role: 0,
+      });
+
+      const result = await service.createUser({
+        email: 'testing@email.com',
+        role: 0,
+        password: 'testing',
+        verified: false,
+      });
+
+      expect(result).toMatchObject({
+        ok: false,
+        error: 'The email address is arleady exist. Use another please.',
+      });
+    });
   });
 });

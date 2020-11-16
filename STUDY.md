@@ -918,3 +918,22 @@ const module: TestingModule = await Test.createTestingModule({
 ```js
   let userRepository:Partial<Record<keyof Repository<User>, jest.Mock>>;
 ```
+
+- mockResolvedValue
+
+  - users.service.ts의 createUser에서
+
+  ```js
+  const exist = await this.users.findOne({ email });
+  ```
+
+  이러한 코드가 있는데, 이를 mocking 하려면..
+  test에서 mocking한 repository에
+
+  ```js
+    userRepository.findOne.mockResolvedValue({ ...})
+  ```
+
+  를 해주면 된다.
+
+  - 이렇게 해주면 findOne은 위에서 설정해준 값을 리턴해준다.

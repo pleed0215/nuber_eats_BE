@@ -1,11 +1,17 @@
-import { Field, InputType, ObjectType, OmitType } from '@nestjs/graphql';
+import {
+  Field,
+  InputType,
+  ObjectType,
+  OmitType,
+  PickType,
+} from '@nestjs/graphql';
 import { CommonOutput } from 'src/common/common.output.dto';
 import { User } from '../entities/user.entity';
 
 @InputType()
-export class CreateUserInput extends OmitType(
+export class CreateUserInput extends PickType(
   User,
-  ['id', 'createAt', 'updatedAt'] as const,
+  ['email', 'password', 'verified', 'role'] as const,
   InputType,
 ) {}
 
