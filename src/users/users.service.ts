@@ -105,7 +105,13 @@ export class UsersService {
   }
 
   async findById(id: number): Promise<User> {
-    return await this.users.findOne({ id });
+    try {
+      const foundUser = await this.users.findOneOrFail({ id });
+      return foundUser;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
   }
 
   async updateProfile(
@@ -113,7 +119,7 @@ export class UsersService {
     updatedInput: UpdateProfileInput,
   ): Promise<boolean> {
     try {
-      const updatedUser = await this.users.findOne(userId, {
+      const updatedUser = await this.users.findOneOrFail(userId, {
         loadRelationIds: true,
       });
       const { email } = updatedInput;
@@ -145,29 +151,31 @@ export class UsersService {
   }
 
   async updatePassword(userId: number, password: string): Promise<boolean> {
-    const willUpdate = await this.users.findOne({ id: userId });
-
-    if (willUpdate) {
+    try {
+      const willUpdate = await this.users.findOneOrFail({ id: userId });
       willUpdate.password = password;
-      console.log(await this.users.save(willUpdate));
+      await this.users.save(willUpdate);
       return true;
-    } else {
+    } catch (e) {
+      console.log(e);
       return false;
     }
   }
 
   async verifyCode({ code }: VerificationInput): Promise<boolean> {
-    const verification = await this.verifications.findOne(
-      { code },
-      { relations: ['user'] },
-    );
+    try {
+      const verification = await this.verifications.findOneOrFail(
+        { code },
+        { relations: ['user'] },
+      );
 
-    if (verification) {
       verification.user.verified = true;
       await this.users.save(verification.user);
       await this.verifications.delete(verification.id);
       return true;
+    } catch (e) {
+      console.log(e);
+      return false;
     }
-    return false;
   }
 }
