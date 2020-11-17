@@ -949,3 +949,19 @@ const module: TestingModule = await Test.createTestingModule({
 ```
 
 - json 자리에 이거 추가 해주면 coveragePath에서 빠진다.
+
+- jest 사용법 자체가 간단해서 코드를 보면 대부분 이해가 된다.
+- 대신에 mocking 파트만 잘 이해해서, test에 집중을 하면 된다고 보면 된다.
+- 이를테면 users.service.ts를 테스트하고 싶으면, users.service.ts를 제외한 다른 부분 entity, other services 같은 경우는 동작이 되는 정도로 흉내만 내면 될 것 같다.
+- 아직 testing을 왜 해야하는지 이유는 잘 모르겠다 왜냐하면, 이 정도를 굳이 테스트해야 할까?? 근데 비지니스 파트로 넘어가서 규모가 커지면 어떨까라 생각을 확장해 보면, 테스트가 필요할 수 있을 것 같다.. 알아서 나쁠 것은 없다고 본다.
+
+* mocking user entity of checkPassword.
+
+```js
+const mockedUser = {
+  id: 1,
+  checkPassword: jest.fn(() => Promise.resolve(true)),
+};
+```
+
+- mockedObject.function.mockResolvedValue와 같은 역할을 한다.
