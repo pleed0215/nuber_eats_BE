@@ -965,3 +965,51 @@ const mockedUser = {
 ```
 
 - mockedObject.function.mockResolvedValue와 같은 역할을 한다.
+
+## 2. JwtService teting
+
+- jsonwebtoken package를 사용 중이지만, unit test이기 때문에 이것조차 mocking을 해야 한다고 한다.
+- npm pacakage를 mocking 하려면??
+
+```js
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn(() => 'token'),
+  verify: jest.fn(),
+}));
+```
+
+- 이렇게 하면 jsonwebtokeb package의 sign, verify 등을 jest function으로 바꿔준다.
+- 이쯤되면 package naming이 이해가 된다. jest.
+
+## 3. MailService testing
+
+- 다른 테스트처럼 이를테면 mocking해서 테스팅을 하면 문제가 없지만..
+
+```js
+expect(service.sendEmail).toHaveBeenCalledTimes(1);
+expect(service.sendEmail).toHaveBeenCalledWith(
+  sendEmailArgs.to,
+  sendEmailArgs.user,
+  sendEmailArgs.host,
+  sendEmailArgs.code,
+);
+```
+
+- 이런 경우에는 문제가 생긴다. 왜냐하면 sendEmail method를 mocking function이 아니라, real function 이기 때문이다.
+- 그래서 에러메시지도 이와 같이 나온다.
+  <code>
+  expect(received).toHaveBeenCalledTimes(expected)
+
+      Matcher error: received value must be a mock or spy function
+
+  </code>
+
+- mocking or spy function이여야 한다.
+
+### spy
+
+```js
+jest.spyOn(service, 'sendEmail').mockImplementation(async () => 'fakeBody');
+```
+
+- real function을 mocking? spying? 하는 방법.

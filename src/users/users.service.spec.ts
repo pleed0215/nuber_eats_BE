@@ -40,7 +40,6 @@ describe('UsersService', () => {
   let mailService: MailService;
   let jwtService: JwtService;
 
-  // not before each but all
   // testing module setting part.
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

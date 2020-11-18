@@ -15,7 +15,7 @@ export class MailService {
     });*/
   }
 
-  private async sendEmail(
+  async sendEmail(
     to: string,
     subject: string,
     user: string,
