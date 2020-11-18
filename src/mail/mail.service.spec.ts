@@ -10,7 +10,9 @@ const mailOptions: MailModuleOptions = {
 };
 
 jest.mock('got', () => ({
-  got: jest.fn(),
+  response: {
+    body: 'body',
+  },
 }));
 
 jest.mock('form-data', () => ({
@@ -68,5 +70,13 @@ describe('MailService', () => {
     });
   });
 
-  it.todo('sendEmail');
+  describe('sendEmail', () => {
+    it('should return response.body', async () => {
+      const result = await service.sendEmail('to', 'subject', 'user', {
+        code: 'code',
+      });
+
+      console.log(result);
+    });
+  });
 });
