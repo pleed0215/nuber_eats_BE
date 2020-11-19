@@ -1019,3 +1019,58 @@ jest.spyOn(service, 'sendEmail').mockImplementation(async () => 'fakeBody');
   jest.mock('form-data');
   ```
   이런식으로 해주면 된다.
+
+# 9. User module e2e test
+
+## Setting
+
+- moduleNameMapper
+  ```json
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/../src/$1"
+  }
+  ```
+  - package.json의 설정과는 다른데, rooDir이 e2e에서는 "."으로 설정되어 있기 때문에.
+
+## afterAll
+
+```js
+afterAll(async () => {
+  await getConnection().dropDatabase();
+  app.close();
+});
+```
+
+- app 닫고, test db를 클리어하자.
+
+## Start test
+
+### create user
+
+- graphql은 결국 post일 뿐. query 데이터가 post의 request payload에 들어있다.
+- unit test와는 좀 다르다. mocking이 없어서 나는 더 편하고 좋은 것 같다.
+
+```js
+it('should create user', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `mutation {
+            createUser(input: {email: "pleed0215@gmail.com" password: "testtest" role: Client}) {
+              ok
+              error
+              data {
+                email
+                role
+              }
+            }
+        }`,
+        })
+        .expect(200)
+        .expect(res => {
+          expect(res.body.data.reateUser.ok).toBe(true);
+        });
+```
+
+마지막의 expect에서 최종결과값을 확인할 수 있다.
+mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없으니 mocking을 해야 한다.

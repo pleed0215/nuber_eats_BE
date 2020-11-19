@@ -53,11 +53,9 @@ export class User extends CoreEntity {
   async hashPassword(): Promise<void> {
     try {
       if (this.password) {
-        console.log('password will update', this.password);
         this.password = await bcrypt.hash(this.password, 10);
       }
     } catch (e) {
-      console.log(e);
       throw new InternalServerErrorException(e);
     }
   }
@@ -66,7 +64,6 @@ export class User extends CoreEntity {
     try {
       return await bcrypt.compare(password, this.password);
     } catch (e) {
-      console.log(e);
       throw new InternalServerErrorException(e);
     }
   }

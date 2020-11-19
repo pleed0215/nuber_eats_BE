@@ -97,7 +97,6 @@ input CreateUserInput {
   email: String!
   password: String!
   role: UserRole!
-  verified: Boolean
 }
 
 input UpdateProfileInput {

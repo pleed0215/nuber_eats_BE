@@ -20,26 +20,17 @@ import { AuthModule } from './auth/auth.module';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
 
-console.log(process.env.NODE_ENV);
-console.log(
-  join(
-    __dirname,
-    process.env.NODE_ENV === 'prod' ? 'dist' : 'src',
-    '**',
-    '*.entity.{ts,.js}',
-  ),
-);
 // secret key: FHaITMZg4S6Y8aooKl1O1YPTSIxDW5Vz
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'dev' ? '.dev.env' : '.env',
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.dev.env' : '.test.env',
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
-          .valid('dev', 'prod')
+          .valid('dev', 'prod', 'test')
           .default('dev'),
         POSTGRES_PASSWORD: Joi.string().required(),
         SECRET_KEY: Joi.string().required(),
@@ -57,8 +48,8 @@ console.log(
       host: '222.104.218.3',
       port: 32788,
       username: 'postgres',
-      database: 'nuber-eats',
-      logging: process.env.NODE_ENV !== 'prod',
+      database: 'nuber-eats' + process.env.NODE_ENV === 'test' ? '-test' : '',
+      logging: process.env.NODE_ENV === 'dev',
       password: process.env['POSTGRES_PASSWORD'],
       entities: [Restaurant, User, Verification],
       synchronize: process.env.NODE_ENV !== 'prod',
