@@ -84,17 +84,8 @@ export class UsersResolver {
     @Args('update') update: UpdateProfileInput,
   ): Promise<UpdateProfileOutput> {
     try {
-      const isSuccess = await this.usersService.updateProfile(user.id, update);
-
-      return isSuccess
-        ? {
-            ok: true,
-            updated: user,
-          }
-        : {
-            ok: false,
-            error: 'While updating profile, there was some errors.',
-          };
+      const result = await this.usersService.updateProfile(user.id, update);
+      return result;
     } catch (e) {
       return {
         ok: false,

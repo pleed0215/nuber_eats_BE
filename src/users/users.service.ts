@@ -7,7 +7,10 @@ import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 
 import { JwtService } from 'src/jwt/jwt.service';
-import { UpdateProfileInput } from './dtos/update-profile.dto';
+import {
+  UpdateProfileInput,
+  UpdateProfileOutput,
+} from './dtos/update-profile.dto';
 import { Verification } from './entities/verification.entity';
 import { VerificationInput } from './dtos/verification.dto';
 
@@ -115,7 +118,7 @@ export class UsersService {
   async updateProfile(
     userId: number,
     updatedInput: UpdateProfileInput,
-  ): Promise<boolean> {
+  ): Promise<UpdateProfileOutput> {
     try {
       const updatedUser = await this.users.findOneOrFail(userId, {
         loadRelationIds: true,
@@ -132,6 +135,7 @@ export class UsersService {
         updatedInput.verified = false;
       }
       await this.users.update({ id: userId }, { ...updatedInput });
+
       if (email && code)
         await this.mailService.sendVerificationEmail(
           email,
@@ -139,9 +143,15 @@ export class UsersService {
           SERVER_HOST,
           code,
         );
-      return true;
+      return {
+        ok: true,
+        updated: updatedInput,
+      };
     } catch (e) {
-      return false;
+      return {
+        ok: false,
+        error: e.toString(),
+      };
     }
   }
 

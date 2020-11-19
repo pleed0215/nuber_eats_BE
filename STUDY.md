@@ -1074,3 +1074,7 @@ it('should create user', () => {
 
 마지막의 expect에서 최종결과값을 확인할 수 있다.
 mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없으니 mocking을 해야 한다.
+
+### update 파트가 조금 까다로움. 코드 확인 바람.
+
+### 필요한 변수 사용할 때에는 beforeAll 사용하자.

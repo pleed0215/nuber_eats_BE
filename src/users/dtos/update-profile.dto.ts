@@ -27,7 +27,7 @@ export class UpdateProfileInput extends PartialType(
 @ObjectType()
 export class UpdateProfileOutput extends CommonOutput {
   @Field(type => User, { nullable: true })
-  updated?: User;
+  updated?: UpdateProfileInput;
 }
 
 @ArgsType()
