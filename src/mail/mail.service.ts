@@ -21,7 +21,7 @@ export class MailService {
     user: string,
     emailData: Object,
     templateName = 'verification',
-  ): Promise<string> {
+  ): Promise<boolean> {
     const form = new FormData();
     form.append('from', `Nuber-eats <pleed0215@${this.options.mailgunDomain}>`);
     form.append('to', to);
@@ -31,19 +31,23 @@ export class MailService {
       form.append(`v:${key}`, emailData[key]),
     );
 
-    const response = await got(
-      `https://api.mailgun.net/v3/${this.options.mailgunDomain}/messages`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Basic ${Buffer.from(
-            `api:${this.options.mailgunApiKey}`,
-          ).toString('base64')}`,
+    try {
+      const response = await got.post(
+        `https://api.mailgun.net/v3/${this.options.mailgunDomain}/messages`,
+        {
+          headers: {
+            Authorization: `Basic ${Buffer.from(
+              `api:${this.options.mailgunApiKey}`,
+            ).toString('base64')}`,
+          },
+          body: form,
         },
-        body: form,
-      },
-    );
-    return response.body;
+      );
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   }
 
   async sendVerificationEmail(
@@ -51,7 +55,7 @@ export class MailService {
     user: string,
     host: string,
     code: string,
-  ): Promise<string> {
+  ): Promise<boolean> {
     return this.sendEmail(
       to,
       `Hello, ${user}! This is a verfication mail for Nuber-eats!`,

@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MAIL_OPTIONS } from './mail.constant';
 import { MailModuleOptions } from './mail.interfaces';
 import { MailService } from './mail.service';
+import * as FormData from 'form-data';
+import got from 'got';
 
 const mailOptions: MailModuleOptions = {
   mailgunApiKey: 'TEST_KEY',
@@ -9,15 +11,9 @@ const mailOptions: MailModuleOptions = {
   mailgunEmail: 'test@test.com',
 };
 
-jest.mock('got', () => ({
-  response: {
-    body: 'body',
-  },
-}));
+jest.mock('got');
 
-jest.mock('form-data', () => ({
-  append: jest.fn(),
-}));
+jest.mock('form-data');
 
 describe('MailService', () => {
   // for testing UserService.
@@ -48,9 +44,7 @@ describe('MailService', () => {
         code: 'TestCode',
       };
 
-      jest
-        .spyOn(service, 'sendEmail')
-        .mockImplementation(async () => 'fakeBody');
+      jest.spyOn(service, 'sendEmail').mockImplementation(async () => true);
 
       service.sendVerificationEmail(
         sendEmailArgs.to,
@@ -71,12 +65,36 @@ describe('MailService', () => {
   });
 
   describe('sendEmail', () => {
-    it('should return response.body', async () => {
+    it('should return true', async () => {
       const result = await service.sendEmail('to', 'subject', 'user', {
         code: 'code',
       });
 
-      console.log(result);
+      const formDataSpy = jest.spyOn(FormData.prototype, 'append');
+
+      expect(formDataSpy).toHaveBeenCalled();
+      expect(formDataSpy).toHaveBeenCalledTimes(5);
+      expect(got.post).toHaveBeenCalledTimes(1);
+      expect(got.post).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Object),
+      );
+      expect(result).toEqual(true);
+    });
+
+    it('should return false if got function make error', async () => {
+      jest.spyOn(got, 'post').mockImplementation(() => {
+        throw new Error('This is from test.');
+      });
+      const result = await service.sendEmail('to', 'subject', 'user', {
+        code: 'code',
+      });
+
+      expect(got.post).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Object),
+      );
+      expect(result).toEqual(false);
     });
   });
 });

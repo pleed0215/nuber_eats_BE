@@ -1013,3 +1013,9 @@ jest.spyOn(service, 'sendEmail').mockImplementation(async () => 'fakeBody');
 ```
 
 - real function을 mocking? spying? 하는 방법.
+  - npm package의 real function이나 method를 mocking 하려면..
+  ```js
+  jest.mock('got');
+  jest.mock('form-data');
+  ```
+  이런식으로 해주면 된다.

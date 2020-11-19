@@ -58,7 +58,6 @@ export class UsersService {
         };
       }
     } catch (e) {
-      console.log(e);
       return {
         ok: false,
         error: 'An error occured when creating a user accound.',
@@ -96,7 +95,6 @@ export class UsersService {
         };
       }
     } catch (e) {
-      console.log(e);
       return {
         ok: false,
         error: 'Login failed. This is from login method of users.service.ts',
@@ -109,7 +107,6 @@ export class UsersService {
       const foundUser = await this.users.findOneOrFail({ id });
       return foundUser;
     } catch (e) {
-      console.log(e);
       return null;
     }
   }
@@ -135,17 +132,14 @@ export class UsersService {
       }
       await this.users.update({ id: userId }, { ...updatedInput });
       if (email && code)
-        console.log(
-          await this.mailService.sendVerificationEmail(
-            email,
-            email,
-            SERVER_HOST,
-            code,
-          ),
+        await this.mailService.sendVerificationEmail(
+          email,
+          email,
+          SERVER_HOST,
+          code,
         );
       return true;
     } catch (e) {
-      console.log(e);
       return false;
     }
   }
@@ -157,7 +151,6 @@ export class UsersService {
       await this.users.save(willUpdate);
       return true;
     } catch (e) {
-      console.log(e);
       return false;
     }
   }
@@ -174,7 +167,6 @@ export class UsersService {
       await this.verifications.delete(verification.id);
       return true;
     } catch (e) {
-      console.log(e);
       return false;
     }
   }
