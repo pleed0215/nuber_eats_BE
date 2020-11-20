@@ -1,8 +1,0 @@
-{
-  "type": "postgres",
-  "host": "222.104.218.3",
-  "port": 32788,
-  "username": "postgres",
-  "database": "nuber-eats",
-  "logging": true
-}

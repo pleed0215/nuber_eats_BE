@@ -6,9 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
-@ObjectType()
-export class CoreEntity {
+export abstract class CoreEntity {
   @Field(type => Number)
   @PrimaryGeneratedColumn()
   id: number;

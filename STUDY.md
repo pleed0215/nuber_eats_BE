@@ -1078,3 +1078,66 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
 ### update 파트가 조금 까다로움. 코드 확인 바람.
 
 ### 필요한 변수 사용할 때에는 beforeAll 사용하자.
+
+# 10 Restaurants CRUD
+
+## 1. restaurant & category models
+
+- 1:N 관계
+  - restaurant은 1개의 category를 갖는다.
+  - category는 여러개의 restaurants를 갖을 수 있다.
+  - category의 모델에서..
+
+
+    ```js
+    @ObjectType()
+    @Entity()
+    export class Category extends CoreEntity {
+        ...
+      @Field(type => [Restaurant])
+      @OneToMany(
+      type => Restaurant,
+      restaurant => restaurant.category,)
+      restaurants: Restaurant[];
+      ...
+    }
+    ```
+
+- restaurant에서..
+
+
+    ```js
+    @ObjectType()
+    @Entity()
+    export class Restaurant extends CoreEntity {
+        ...
+        @Field(type => Category)
+        @ManyToOne(
+          type => Category,
+          category => category.restaurants,
+        )
+        category: Category;
+        ....
+    }
+    ```
+
+#### Error?
+
+    - restaurant의 field decorator를 줬고, 문제가 없다고 생각하는데, 자동 생성 graphql에 자꾸 오류가 생긴다.
+    - 문제는 각각을 InputType으로 만들어줘야 한다. 그래서 @InputType({isAbstract: true})를 줘야 한다.
+    - 왜 이걸 못봤어서 몇시간 동안 삽질을 했을까..
+    - abstract type이기 때문에 schema파일에는 나타나지 않는다.
+
+### category가 지워진다면.. restaurant을 다 지워야 될까?
+
+- onDelete를 어떤 side에서 써야 되냐.....??
+
+  - 예를들어 category가 삭제 되면?? onDelete옵션을 어디에..?
+  - 강의에서는 ManyToOne 이것도 햇갈려.
+  - 분명 many인 부분은 category인데.. 왜 restaurant에 manyToOne을 할까..?
+
+  #### 이렇게 생각하자.
+
+  - restaurant에 category를 설정해주잖아?? 그럼 category를 설정해줘야 하는 것으로 생각하자.
+  - category는 many이니까 restaurant이 one이고..? 그래서 many to one decorator를 준다고 생각하자.
+  - 그래서 onDelete도 category입장에서. 주는것.. 그래서 onDelete이면 restaurant의 category를 null로 만든다 생각하자.

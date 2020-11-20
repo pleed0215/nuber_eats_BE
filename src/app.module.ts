@@ -19,6 +19,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
+import { Category } from './restaurants/entities/category.entity';
 
 // secret key: FHaITMZg4S6Y8aooKl1O1YPTSIxDW5Vz
 
@@ -40,6 +41,7 @@ import { MailModule } from './mail/mail.module';
       }),
     }),
     GraphQLModule.forRoot({
+      include: [RestaurantsModule, UsersModule],
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       context: ({ req }) => ({ user: req['user'] }),
     }),
@@ -51,16 +53,16 @@ import { MailModule } from './mail/mail.module';
       database: `nuber-eats${process.env.NODE_ENV === 'test' ? '-test' : ''}`,
       logging: process.env.NODE_ENV === 'dev',
       password: process.env['POSTGRES_PASSWORD'],
-      entities: [Restaurant, User, Verification],
+      entities: [Restaurant, User, Verification, Category],
       synchronize: process.env.NODE_ENV !== 'prod',
     }),
-    RestaurantsModule,
     JwtModule.forRoot({ secretKey: process.env.SECRET_KEY }),
     MailModule.forRoot({
       mailgunApiKey: process.env.MAILGUN_APIKEY,
       mailgunDomain: process.env.MAILGUN_DOMAIN,
       mailgunEmail: process.env.MAILGUN_EMAIL,
     }),
+    RestaurantsModule,
     UsersModule,
     CommonModule,
     AuthModule,

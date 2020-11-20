@@ -2,34 +2,32 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Restaurant {
-  id: Float!
-  name: String!
-  isVegan: Boolean
-  address: String!
-  ownerName: String!
-  categoryName: String!
-}
-
 type User {
-  id: Float!
-  createAt: DateTime!
-  updatedAt: DateTime!
   email: String!
   password: String!
   role: UserRole!
   verified: Boolean
+  restaurants: [Restaurant!]!
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 enum UserRole {
   Client
   Owner
   Delivery
+}
+
+type Category {
+  name: String!
+  image: String!
+  restaurants: [Restaurant!]!
+}
+
+type Restaurant {
+  name: String!
+  coverImage: String!
+  address: String!
+  category: Category
+  owner: User!
 }
 
 type CreateUserOutput {
@@ -79,18 +77,40 @@ type Mutation {
 
 input CreateRestaurantDto {
   name: String!
-  isVegan: Boolean
+  coverImage: String!
   address: String!
-  ownerName: String!
-  categoryName: String!
+  category: CategoryInputType
+  owner: UserInputType!
+}
+
+input CategoryInputType {
+  name: String!
+  image: String!
+  restaurants: [RestaurantInputType!]!
+}
+
+input RestaurantInputType {
+  name: String!
+  coverImage: String!
+  address: String!
+  category: CategoryInputType
+  owner: UserInputType!
+}
+
+input UserInputType {
+  email: String!
+  password: String!
+  role: UserRole!
+  verified: Boolean
+  restaurants: [RestaurantInputType!]!
 }
 
 input UpdateRestaurantInputType {
   name: String
-  isVegan: Boolean
+  coverImage: String
   address: String
-  ownerName: String
-  categoryName: String
+  category: CategoryInputType
+  owner: UserInputType
 }
 
 input CreateUserInput {
@@ -100,9 +120,8 @@ input CreateUserInput {
 }
 
 input UpdateProfileInput {
-  createAt: DateTime
-  updatedAt: DateTime
   email: String
   role: UserRole
   verified: Boolean
+  restaurants: [RestaurantInputType!]
 }
