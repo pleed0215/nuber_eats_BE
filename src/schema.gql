@@ -18,6 +18,7 @@ enum UserRole {
 
 type Category {
   name: String!
+  slug: String!
   image: String!
   restaurants: [Restaurant!]!
 }
@@ -28,6 +29,12 @@ type Restaurant {
   address: String!
   category: Category
   owner: User!
+}
+
+type CreateRestaurantOutput {
+  error: String
+  ok: Boolean!
+  data: Restaurant
 }
 
 type CreateUserOutput {
@@ -66,8 +73,7 @@ type Query {
 }
 
 type Mutation {
-  createRestaurant(input: CreateRestaurantDto!): Boolean!
-  updateRestaurant(id: Float!, data: UpdateRestaurantInputType!): Boolean!
+  createRestaurant(input: CreateRestaurantInput!): CreateRestaurantOutput!
   createUser(input: CreateUserInput!): CreateUserOutput!
   login(email: String!, password: String!): LoginOutput!
   updateProfile(update: UpdateProfileInput!): UpdateProfileOutput!
@@ -75,42 +81,11 @@ type Mutation {
   verifyCode(code: String!): VerificationOutput!
 }
 
-input CreateRestaurantDto {
+input CreateRestaurantInput {
   name: String!
   coverImage: String!
   address: String!
-  category: CategoryInputType
-  owner: UserInputType!
-}
-
-input CategoryInputType {
-  name: String!
-  image: String!
-  restaurants: [RestaurantInputType!]!
-}
-
-input RestaurantInputType {
-  name: String!
-  coverImage: String!
-  address: String!
-  category: CategoryInputType
-  owner: UserInputType!
-}
-
-input UserInputType {
-  email: String!
-  password: String!
-  role: UserRole!
-  verified: Boolean
-  restaurants: [RestaurantInputType!]!
-}
-
-input UpdateRestaurantInputType {
-  name: String
-  coverImage: String
-  address: String
-  category: CategoryInputType
-  owner: UserInputType
+  categoryName: String = null
 }
 
 input CreateUserInput {
@@ -124,4 +99,27 @@ input UpdateProfileInput {
   role: UserRole
   verified: Boolean
   restaurants: [RestaurantInputType!]
+}
+
+input RestaurantInputType {
+  name: String!
+  coverImage: String!
+  address: String!
+  category: CategoryInputType
+  owner: UserInputType!
+}
+
+input CategoryInputType {
+  name: String!
+  slug: String!
+  image: String!
+  restaurants: [RestaurantInputType!]!
+}
+
+input UserInputType {
+  email: String!
+  password: String!
+  role: UserRole!
+  verified: Boolean
+  restaurants: [RestaurantInputType!]!
 }

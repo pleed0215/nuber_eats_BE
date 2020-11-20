@@ -1,27 +1,61 @@
-import { CreateRestaurantDto } from './dtos/create-restaurant.dto';
+import {
+  CreateRestaurantInput,
+  CreateRestaurantOutput,
+} from './dtos/create-restaurant.dto';
 import { Restaurant } from './entities/restaurant.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
-import { UpdateRestaurantDto } from './dtos/update-restaurant.dto';
+import { Repository } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Category } from './entities/category.entity';
 
 @Injectable()
 export class RestaurantsService {
   constructor(
     @InjectRepository(Restaurant)
     private readonly restaurants: Repository<Restaurant>,
+    @InjectRepository(Category)
+    private readonly categories: Repository<Category>,
   ) {}
   getAll(): Promise<Restaurant[]> {
     return this.restaurants.find({});
   }
 
-  createRestaurant(restaurant: CreateRestaurantDto): Promise<Restaurant> {
-    const newRestaurant = this.restaurants.create(restaurant);
-    return this.restaurants.save(newRestaurant);
-  }
+  async createRestaurant(
+    owner: User,
+    input: CreateRestaurantInput,
+  ): Promise<CreateRestaurantOutput> {
+    try {
+      const newRestaurant = this.restaurants.create({ ...input, owner });
 
-  updateRestaurant({ id, data }: UpdateRestaurantDto): Promise<UpdateResult> {
-    console.log(id, data);
-    return this.restaurants.update(id, { ...data });
+      // make category name slug not to create category with same name becuase of similar category name.
+      const categoryName = input.categoryName?.trim().toLowerCase();
+      const categorySlug = categoryName.replace(/ /g, '-');
+
+      // make a slug and findOne with slug name
+      let category = await this.categories.findOne({ slug: categorySlug });
+      if (category) {
+        newRestaurant.category = category;
+      } else {
+        category = await this.categories.create({
+          slug: categorySlug,
+          name: categoryName,
+          image: '',
+        });
+        await this.categories.save(category);
+        newRestaurant.category = category;
+      }
+
+      await this.restaurants.save(newRestaurant);
+      return {
+        ok: true,
+        data: newRestaurant,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: 'Cannot create restaurant.',
+      };
+    }
   }
 }

@@ -1136,8 +1136,25 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
   - 강의에서는 ManyToOne 이것도 햇갈려.
   - 분명 many인 부분은 category인데.. 왜 restaurant에 manyToOne을 할까..?
 
-  #### 이렇게 생각하자.
+    #### 이렇게 생각하자.
 
-  - restaurant에 category를 설정해주잖아?? 그럼 category를 설정해줘야 하는 것으로 생각하자.
-  - category는 many이니까 restaurant이 one이고..? 그래서 many to one decorator를 준다고 생각하자.
-  - 그래서 onDelete도 category입장에서. 주는것.. 그래서 onDelete이면 restaurant의 category를 null로 만든다 생각하자.
+    - restaurant에 category를 설정해주잖아?? 그럼 category를 설정해줘야 하는 것으로 생각하자.
+    - category는 many이니까 restaurant이 one이고..? 그래서 many to one decorator를 준다고 생각하자.
+    - 그래서 onDelete도 category입장에서. 주는것.. 그래서 onDelete이면 restaurant의 category를 null로 만든다 생각하자.
+
+  ### createRestaurant
+
+  - category 부분
+
+    - categoryName을 CreateRestauntInput에서 string으로 입력 받자고 한다.
+    - 그럼, categoryName에 해당하는 category가 있다면 그 category를 넣어주면 되고, 아니면 해당 category를 만들자.
+    - 그런데 주의할 것은 이를테면,
+
+      - korean bbq, korean-bbq, KoreanBBq 이런 것들을 어떻게 ??? 처리를 할까?
+      - 실상은 같은 카테고리일텐데, 이름들이 다 다르니... 고민해 봐야할 점.
+
+      #### slug
+
+      - 위 문제를 해결하기 위해 slug화 해버리자.
+      - replace에서 모든 공백에 slug하려면... replace(/ /g, '-') 이렇게 해줘야 한단다.
+      - 정규표현식인 듯한데.. 정규표현식을 언제 한번 공부해야 할 것 같다.
