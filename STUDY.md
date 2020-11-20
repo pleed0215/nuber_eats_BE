@@ -1165,3 +1165,124 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
 - @SetMetadata를 사용한다고한다.
   @SetMetadata는 metadata를 class/function에 key/value로 저장해준다고 한다.
   이 metadata는 Reflect 클래스를 이용하여 반영된다고 되어 있다...
+
+  #### keyof 연산자
+
+  - 피연산자의 키타입에 해당하는 타입만 리턴해준다.
+
+  ```js
+  let person: Person = {
+    name: 'Jarid',
+    age: 35,
+  };
+  let strings: string[] = pluck(person, ['name']); // ok, string[]
+  let personProps: keyof Person; // 'name' | 'age'
+
+  ```
+
+  - keyof Person은 'name' | 'age'와 완벽하게 호환됩니다. 차이점은 Person에 또 다른 프로퍼티 address : string를 추가하면 keyof Person이 자동으로 'name' | 'age' | 'address'로 업데이트 된다는 것입니다. 그리고 pluck과 같은 generic 문장에서 keyof를 사용할 수 있습니다. 여기서 pluck는 그 이전에 프로퍼티 이름을 알 수 없습니다. 즉, 컴파일러는 올바른 프라퍼티 집합을 pluck에 전달했는지 확인합니다
+
+  ```js
+  enum ColorsEnum {
+    white = '#ffffff',
+    black = '#000000',
+  }
+
+  type Colors = keyof typeof ColorsEnum;
+  //The last row is equivalent to:
+  type Colors = "white" | "black"
+  ```
+
+  #### keyof typeof 연산자
+
+  - 이해하려면 literal type을 먼저 알아야 하는데..
+
+  ```js
+  type Greeting = 'Hello';
+  ```
+
+  - Greeting은 Hello 값 밖에 가질 수 없다.
+
+  ```js
+  type Greeting = 'Hello' | 'Hi' | 'Welcome';
+  ```
+
+  - Union of literal type이라고 한다.
+  - Greeting은 위 세 가지 값만 가질 수 있다.
+
+  - interface에서의 keyof 연산자를 이용한 union literal type
+
+    ```js
+    interface Person {
+      name: string
+      age: number
+      location: string
+    }
+    /*
+    Using the keyof operator on the type Person will give you a new type as shown in the following code:
+    */
+    type SomeNewType = keyof Person
+
+    /*
+    This SomeNewType is a union of literal types ("name" | "age" | "location") that is made from the properties of type Person.
+
+    Now you can create objects of type SomeNewType:
+    */
+
+    let newTypeObject: SomeNewType
+    newTypeObject = "name"           // OK
+    newTypeObject = "age"            // OK
+    newTypeObject = "location"       // OK
+    newTypeObject = "anyOtherValue"  // Error...
+    ```
+
+  - enum type의 union of literal types
+
+    ```js
+    const bmw = { name: "BMW", power: "1000hp" }
+    /*
+    This is where we use keyof typeof together, because typeof gives you the type of bmw and then keyof operator gives you the literal type union as shown in the following code:
+    */
+
+    type CarLiteralType = keyof typeof bmw
+
+    let carPropertyLiteral: CarLiteralType
+    carPropertyLiteral = "name"       // OK
+    carPropertyLiteral = "power"      // OK
+    carPropertyLiteral = "anyOther"   // Error...
+    ```
+
+    - 이런 경우에서 keyof typeof 를 사용해야 한다.
+
+  - enum에서는..
+
+    ```js
+    enum ColorsEnum {
+      white = '#ffffff',
+      black = '#000000',
+    }
+    /*
+    Here ColorsEnum is an object, not a type. So, we need to invoke keyof typeof operators together as shown in the following code:
+    */
+
+    type Colors = keyof typeof ColorsEnum
+
+    let colorLiteral: Colors
+    colorLiteral = "white"  // OK
+    colorLiteral = "black"  // OK
+    colorLiteral = "red"    // Error...
+    ```
+
+  - [출처](https://stackoverflow.com/questions/55377365/what-does-keyof-typeof-mean-in-typescript)
+
+#### APP_GUARD
+
+- auth module에서 provider 세팅을 새로 해주는데...
+
+  - provide로 APP_GUARD를 준다.
+  - 새로운 내용..
+
+  - UseGuard를 계속 사용하는 것은 섹시하지 않다며...
+    - 그래서 APP_GUARD를 AuthModule에서 provide로 사용하는데..
+    - AuthGuard를 새로 만들어야 한다. Authentication 방식이 바뀌었으니..
+      - 먼저 Reflector라는 것을 알아야 한다.

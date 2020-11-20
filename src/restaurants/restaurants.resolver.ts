@@ -5,10 +5,11 @@ import {
   CreateRestaurantOutput,
 } from './dtos/create-restaurant.dto';
 import { Restaurant } from './entities/restaurant.entity';
-import { UseGuards } from '@nestjs/common';
+import { SetMetadata, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AuthUser } from 'src/auth/auth.decorator';
-import { User } from 'src/users/entities/user.entity';
+import { User, UserRole } from 'src/users/entities/user.entity';
+import { Role } from 'src/auth/role.decorator';
 
 @Resolver(of => Restaurant)
 export class RestaurantsResolver {
@@ -20,6 +21,7 @@ export class RestaurantsResolver {
 
   @UseGuards(AuthGuard)
   @Mutation(returns => CreateRestaurantOutput)
+  @Role(['Owner'])
   async createRestaurant(
     @AuthUser() authUser: User,
     @Args('input')

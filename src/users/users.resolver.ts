@@ -4,6 +4,7 @@ import { Resolver } from '@nestjs/graphql';
 
 import { AuthUser } from 'src/auth/auth.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Role } from 'src/auth/role.decorator';
 
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
@@ -49,14 +50,15 @@ export class UsersResolver {
 
   // me: return profile of login user.
   @Query(returns => User, { nullable: true })
-  @UseGuards(AuthGuard)
+  @Role(['Any'])
   me(@AuthUser() authUser: User): User {
     return authUser;
   }
 
   // userProfile: profile of others
-  @UseGuards(AuthGuard)
+
   @Query(returns => UserProfileOutput)
+  @Role(['Any'])
   async userProfile(
     @Args() input: UserProfileInput,
   ): Promise<UserProfileOutput> {
@@ -77,8 +79,9 @@ export class UsersResolver {
 
   // Mutation updateProfile
   // update own profile except password
-  @UseGuards(AuthGuard)
+
   @Mutation(returns => UpdateProfileOutput)
+  @Role(['Any'])
   async updateProfile(
     @AuthUser() user: User,
     @Args('update') update: UpdateProfileInput,
@@ -96,8 +99,9 @@ export class UsersResolver {
 
   // Mutation password
   // update own password
-  @UseGuards(AuthGuard)
+
   @Mutation(returns => LoginOutput)
+  @Role(['Any'])
   async updatePassword(
     @AuthUser() user: User,
     @Args() passwordInput: UpdatePasswordInput,
@@ -130,6 +134,7 @@ export class UsersResolver {
   // Mutation verify
   // process verification
   @Mutation(returns => VerificationOutput)
+  @Role(['Any'])
   async verifyCode(
     @Args() input: VerificationInput,
   ): Promise<VerificationOutput> {

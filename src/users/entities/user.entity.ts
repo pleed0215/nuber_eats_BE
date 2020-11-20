@@ -19,10 +19,10 @@ import { IsBoolean, IsEmail, IsEnum, IsString } from 'class-validator';
 import { Verification } from './verification.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 
-enum UserRole {
-  Client,
-  Owner,
-  Delivery,
+export enum UserRole {
+  Client = 'Client',
+  Owner = 'Owner',
+  Delivery = 'Delivery',
 }
 
 registerEnumType(UserRole, { name: 'UserRole' });
@@ -62,6 +62,7 @@ export class User extends CoreEntity {
   @OneToMany(
     type => Restaurant,
     restaurant => restaurant.owner,
+    { cascade: true },
   )
   restaurants: Restaurant[];
 
