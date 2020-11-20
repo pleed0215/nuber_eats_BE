@@ -1158,3 +1158,10 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
       - 위 문제를 해결하기 위해 slug화 해버리자.
       - replace에서 모든 공백에 slug하려면... replace(/ /g, '-') 이렇게 해줘야 한단다.
       - 정규표현식인 듯한데.. 정규표현식을 언제 한번 공부해야 할 것 같다.
+
+## 2. Role base authentication
+
+- @UseGuard를 사용할 줄 알았는데.. 매번 사용하기 좀 그렇지 않냐면서..
+- @SetMetadata를 사용한다고한다.
+  @SetMetadata는 metadata를 class/function에 key/value로 저장해준다고 한다.
+  이 metadata는 Reflect 클래스를 이용하여 반영된다고 되어 있다...
