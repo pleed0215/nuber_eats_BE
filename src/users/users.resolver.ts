@@ -1,4 +1,3 @@
-import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Query } from '@nestjs/graphql';
 import { Resolver } from '@nestjs/graphql';
 
@@ -134,7 +133,6 @@ export class UsersResolver {
   // Mutation verify
   // process verification
   @Mutation(returns => VerificationOutput)
-  @Role(['Any'])
   async verifyCode(
     @Args() input: VerificationInput,
   ): Promise<VerificationOutput> {

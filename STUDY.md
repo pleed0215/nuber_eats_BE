@@ -1281,8 +1281,76 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
 
   - provide로 APP_GUARD를 준다.
   - 새로운 내용..
+  - 이렇게 해주면 더이상 decorator를 쓰지 않아도 된다.
+  - 지금 미완성 상태에서 코드를 돌려서 createUser를 해보면, 'Forbidden resource' 에러가 나온다.
 
   - UseGuard를 계속 사용하는 것은 섹시하지 않다며...
     - 그래서 APP_GUARD를 AuthModule에서 provide로 사용하는데..
+    - 이 방식으로 하면 더이상 @UseGuards decorator를 사용하지 않아도 된다.
+      - objectivity는 @Role decorator를 만들어(이건 nestjs 공식 홈페이지에 예제로 있더라구)
+      - Authentication을 만든다는 것.
+      - Any, Owner, Client, Delivery 등의 권한을 주는 것.
+      - @Role decorator가 없다면, 즉 metadata가 비어있다면 아무나 접근이 가능한 것.
     - AuthGuard를 새로 만들어야 한다. Authentication 방식이 바뀌었으니..
       - 먼저 Reflector라는 것을 알아야 한다.
+      ```js
+        const role = this.reflector.get<AllowedRoles>(
+          'roles',
+          context.getHandler(),
+        );
+      ```
+
+  #### Problem - ... syntax의 element 몇 개 제외하고 spread operator 사용하기.
+
+  ```js
+  const firstObject = { id: 0, firstName: 'John', lastName: 'Smith', age: 77 };
+  // take every property except age:
+  const { age, ...secondObject } = { ...firstObject };
+  // const { age, ...secondObject } = firstObject; 이렇게 해도 된다는데?
+  console.log(firstObject);
+  console.log(secondObject);
+  ```
+
+  #### Custom Repository
+
+  1. 만드는 방법
+
+  ```js
+    @EntityRepository(Category)
+    export class CategoryRepository extends Repository<Category> {
+      ...
+    }
+  ```
+
+  2. module의 forFeature에 CategoryRepository를 넣어준다.
+
+  ```js
+  @Module({
+    imports: [
+      TypeOrmModule.forFeature([Category, Restaurant, CategoryRepository]),
+    ],
+    providers: [RestaurantsResolver, RestaurantsService],
+  })
+  export class RestaurantsModule {}
+  ```
+
+  3. service에 inject 해준다.
+
+  ```js
+    constructor (@InjectRepository(CategoryRepository) private readonly categories) {}
+  ```
+
+  #### 참고사항
+
+  - typeorm의 find류의 method를 사용할 때, data relation 관련하여, relation을 옵션으로 줄것이냐 loadRelationsIds를 줄 것이냐에 대해서는.. 최적화 문제로 볼 수도 있다.
+  - 빠르게 id만 필요한 경우에는 loadRelationsIds만 해도 된다.
+
+  #### @RelationId
+
+  - 위의 방법의 문제가 loadRelationsId를 사용하면 typescript에서는 이를테면, Category로 알고 있지만, 실제 데이터는 number(id)가 들어가 있어서 typescript에서 에러를 내뿜게 된다.
+  - 그래서 RelationId를 사용하면 된다.
+
+  ```js
+    @RelationId((post:POST)) => post.category)
+    categoryId: number;
+  ```
