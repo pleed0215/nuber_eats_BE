@@ -1,5 +1,13 @@
 import { RestaurantsService } from './../restaurants/restaurants.service';
-import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Args,
+  Mutation,
+  ResolveField,
+  Int,
+  Parent,
+} from '@nestjs/graphql';
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
@@ -13,6 +21,14 @@ import {
   UpdateRestaurantInput,
   UpdateRestaurantOutput,
 } from './dtos/update-restaurant.dto';
+import { DeleteRestaurantOutput } from './dtos/delete-restaurants.dto';
+import {
+  AllCategoriesOutput,
+  CategoryDetailOutput,
+  CategoryOutput,
+} from './dtos/all-categories.dto';
+import { Category } from './entities/category.entity';
+import { getRepository, Repository } from 'typeorm';
 
 @Resolver(of => Restaurant)
 export class RestaurantsResolver {
@@ -39,5 +55,50 @@ export class RestaurantsResolver {
     @Args('input') input: UpdateRestaurantInput,
   ): Promise<UpdateRestaurantOutput> {
     return this.restaurantService.updateRestaurant(authUser, input);
+  }
+
+  // deleteRestaurant
+  @Mutation(returns => DeleteRestaurantOutput)
+  @Role(['Owner'])
+  async deleteRestaurant(
+    @AuthUser() authUser: User,
+    @Args('id') id: number,
+  ): Promise<DeleteRestaurantOutput> {
+    return this.restaurantService.deleteRestaurant(authUser, id);
+  }
+}
+
+@Resolver(of => Category)
+export class CategoryResolver {
+  constructor(private readonly restaurantService: RestaurantsService) {}
+
+  @ResolveField(type => CategoryDetailOutput)
+  async restaurantsOn(
+    @Parent() category: Category,
+  ): Promise<CategoryDetailOutput> {
+    const categoryDetail = await this.restaurantService.getCategoryDetail(
+      category.id,
+    );
+    const numRestaurants = await this.restaurantService.countRestaurantsInCategory(
+      category,
+    );
+    return {
+      count: numRestaurants,
+      restaurants: [...categoryDetail.restaurants],
+    };
+  }
+
+  @Query(returns => CategoryOutput)
+  @Role(['Any'])
+  category(@Args('slug') categorySlug: string): Promise<CategoryOutput> {
+    return this.restaurantService.getRestaurantsByCategory(
+      categorySlug.toLowerCase(),
+    );
+  }
+
+  @Query(returns => AllCategoriesOutput)
+  @Role(['Any'])
+  allCategories(): Promise<AllCategoriesOutput> {
+    return this.restaurantService.getAllCategories();
   }
 }

@@ -13,6 +13,9 @@ import {
   UpdateRestaurantOutput,
 } from './dtos/update-restaurant.dto';
 import { CategoryRepository } from './entities/category.repository';
+import { DeleteRestaurantOutput } from './dtos/delete-restaurants.dto';
+import { Category } from './entities/category.entity';
+import { AllCategoriesOutput, CategoryOutput } from './dtos/all-categories.dto';
 
 @Injectable()
 export class RestaurantsService {
@@ -38,6 +41,12 @@ export class RestaurantsService {
   // getAll: Get all restaurants
   getAll(): Promise<Restaurant[]> {
     return this.restaurants.find({});
+  }
+
+  // are you Owner of that restaurant?
+  private async isOwner(owner: User, id: number): Promise<boolean> {
+    const restaurant = await this.restaurants.findOne(id);
+    return restaurant && restaurant.ownerId === owner.id;
   }
 
   // createRestuarant
@@ -72,17 +81,13 @@ export class RestaurantsService {
   ): Promise<UpdateRestaurantOutput> {
     try {
       const { id, categoryName, ...update } = input;
-      const restaurant = await this.restaurants.findOneOrFail(id);
-
-      if (restaurant.ownerId !== owner.id) {
-        throw Error(
-          `Owner: ${owner.email} is not owner of ${restaurant.name}.`,
-        );
+      const isOwner = await this.isOwner(owner, id);
+      if (!isOwner) {
+        throw Error(`Owner: ${owner.email} is not owner of this restaurant.`);
       }
 
-      let category = null;
       if (categoryName) {
-        category = await this.categories.findOrCreate(categoryName);
+        const category = await this.categories.findOrCreate(categoryName);
         await this.restaurants.update(id, { ...update, category });
       } else {
         await this.restaurants.update(id, { ...update });
@@ -90,6 +95,75 @@ export class RestaurantsService {
 
       return {
         ok: true,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  // deleteRestaurant
+  async deleteRestaurant(
+    owner: User,
+    id: number,
+  ): Promise<DeleteRestaurantOutput> {
+    try {
+      const isOwner = await this.isOwner(owner, id);
+      if (!isOwner) {
+        throw Error(`Owner: ${owner.email} is not owner of this restaurant.`);
+      }
+
+      await this.restaurants.delete(id);
+      return {
+        ok: true,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  // categories..
+  async getAllCategories(): Promise<AllCategoriesOutput> {
+    try {
+      const categories = await this.categories.find({});
+
+      return {
+        ok: true,
+        count: categories.length,
+        categories: [...categories],
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e,
+      };
+    }
+  }
+
+  async getCategoryDetail(categoryId: number): Promise<Category> {
+    return await this.categories.findOne(categoryId, {
+      relations: ['restaurants'],
+    });
+  }
+
+  async countRestaurantsInCategory(category: Category): Promise<number> {
+    return await this.restaurants.count({ category });
+  }
+
+  async getRestaurantsByCategory(slug: string): Promise<CategoryOutput> {
+    try {
+      const category = await this.categories.findOneOrFail(
+        { slug },
+        { relations: ['restaurants'] },
+      );
+      return {
+        ok: true,
+        category,
       };
     } catch (e) {
       return {

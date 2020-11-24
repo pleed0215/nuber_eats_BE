@@ -1354,3 +1354,12 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
     @RelationId((post:POST)) => post.category)
     categoryId: number;
   ```
+
+  - CustomRepository는 위 방법 말고 contructor를 이용해서 만드는 방법도 있다.
+    - AbstractRepository를 상속 받는 방법, EntityManager를 constructor에서 이용하는 방법.
+    - 이 둘은 아무 메소드도 없다.
+
+### Dynamic Field
+
+- request가 있을 때마다 computed result를 보여주는 필드.
+-

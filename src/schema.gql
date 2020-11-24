@@ -20,7 +20,7 @@ type Category {
   name: String!
   slug: String!
   image: String!
-  restaurants: [Restaurant!]!
+  restaurantsOn: CategoryDetailOutput!
 }
 
 type Restaurant {
@@ -40,6 +40,29 @@ type CreateRestaurantOutput {
 type UpdateRestaurantOutput {
   error: String
   ok: Boolean!
+}
+
+type DeleteRestaurantOutput {
+  error: String
+  ok: Boolean!
+}
+
+type CategoryDetailOutput {
+  count: Int
+  restaurants: [Restaurant!]
+}
+
+type AllCategoriesOutput {
+  error: String
+  ok: Boolean!
+  count: Int
+  categories: [Category!]
+}
+
+type CategoryOutput {
+  error: String
+  ok: Boolean!
+  category: Category
 }
 
 type CreateUserOutput {
@@ -73,6 +96,8 @@ type VerificationOutput {
 
 type Query {
   restaurants: [Restaurant!]!
+  category(slug: String!): CategoryOutput!
+  allCategories: AllCategoriesOutput!
   me: User
   userProfile(userId: Float!): UserProfileOutput!
 }
@@ -80,6 +105,7 @@ type Query {
 type Mutation {
   createRestaurant(input: CreateRestaurantInput!): CreateRestaurantOutput!
   updateRestaurant(input: UpdateRestaurantInput!): UpdateRestaurantOutput!
+  deleteRestaurant(id: Float!): DeleteRestaurantOutput!
   createUser(input: CreateUserInput!): CreateUserOutput!
   login(email: String!, password: String!): LoginOutput!
   updateProfile(update: UpdateProfileInput!): UpdateProfileOutput!
@@ -127,7 +153,6 @@ input CategoryInputType {
   name: String!
   slug: String!
   image: String!
-  restaurants: [RestaurantInputType!]!
 }
 
 input UserInputType {
