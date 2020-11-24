@@ -25,6 +25,7 @@ export class Category extends CoreEntity {
   @IsString()
   image: string;
 
+  @Field(type => [Restaurant], { nullable: true })
   @OneToMany(
     type => Restaurant,
     restaurant => restaurant.category,

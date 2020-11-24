@@ -10,5 +10,11 @@ export class PaginationInput {
 @ObjectType()
 export class PaginationOutput extends CommonOutput {
   @Field(type => Int, { nullable: true })
-  totlaPages: number;
+  totalPages?: number;
+
+  @Field(type => Int, { nullable: true })
+  currentPages?: number;
+
+  @Field(type => Int, { nullable: true })
+  countTotalItems?: number;
 }

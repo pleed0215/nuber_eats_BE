@@ -29,10 +29,16 @@ export class AllCategoriesOutput extends CommonOutput {
 export class CategoryInput extends PaginationInput {
   @Field(type => String)
   slug: string;
+
+  @Field(type => Int, { defaultValue: 1 })
+  page: number;
 }
 
 @ObjectType()
 export class CategoryOutput extends PaginationOutput {
   @Field(types => Category, { nullable: true })
   category?: Category;
+
+  @Field(types => [Restaurant], { nullable: true })
+  restaurants?: Restaurant[];
 }

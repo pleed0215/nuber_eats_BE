@@ -20,6 +20,9 @@ import {
   CategoryInput,
   CategoryOutput,
 } from './dtos/all-categories.dto';
+import { Int } from '@nestjs/graphql';
+
+let PAGE_SIZE = 10;
 
 @Injectable()
 export class RestaurantsService {
@@ -161,16 +164,26 @@ export class RestaurantsService {
 
   async getRestaurantsByCategory({
     slug,
-    pag,
+    page,
   }: CategoryInput): Promise<CategoryOutput> {
     try {
-      const category = await this.categories.findOneOrFail(
-        { slug },
-        { relations: ['restaurants'] },
-      );
+      const category = await this.categories.findOneOrFail({ slug });
+      const skipCount = (page - 1) * PAGE_SIZE;
+
+      const restaurants = await this.restaurants.find({
+        where: { category },
+        take: PAGE_SIZE,
+        skip: skipCount,
+      });
+      const countTotalItems = await this.countRestaurantsInCategory(category);
+
       return {
         ok: true,
+        totalPages: Math.ceil(countTotalItems / PAGE_SIZE),
+        currentPages: page,
+        countTotalItems,
         category,
+        restaurants,
       };
     } catch (e) {
       return {

@@ -31,6 +31,7 @@ type Category {
   name: String!
   slug: String!
   image: String!
+  restaurants: [Restaurant!]
   restaurantsOn: CategoryDetailOutput!
 }
 
@@ -76,7 +77,11 @@ type AllCategoriesOutput {
 type CategoryOutput {
   error: String
   ok: Boolean!
+  totalPages: Int
+  currentPages: Int
+  countTotalItems: Int
   category: Category
+  restaurants: [Restaurant!]
 }
 
 type CreateUserOutput {
@@ -110,7 +115,7 @@ type VerificationOutput {
 
 type Query {
   restaurants: [Restaurant!]!
-  category(slug: String!): CategoryOutput!
+  category(slug: String!, page: Int = 1): CategoryOutput!
   allCategories: AllCategoriesOutput!
   me: User
   userProfile(userId: Float!): UserProfileOutput!
@@ -169,6 +174,7 @@ input CategoryInputType {
   name: String!
   slug: String!
   image: String!
+  restaurants: [RestaurantInputType!]
 }
 
 input UserInputType {
