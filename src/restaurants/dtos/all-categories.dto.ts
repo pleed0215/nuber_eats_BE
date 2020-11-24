@@ -1,5 +1,9 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { ArgsType, Field, Int, ObjectType } from '@nestjs/graphql';
 import { CommonOutput } from 'src/common/common.output.dto';
+import {
+  PaginationInput,
+  PaginationOutput,
+} from 'src/common/dtos/pagination.dto';
 import { Category } from '../entities/category.entity';
 import { Restaurant } from '../entities/restaurant.entity';
 
@@ -21,8 +25,14 @@ export class AllCategoriesOutput extends CommonOutput {
   categories?: Category[];
 }
 
+@ArgsType()
+export class CategoryInput extends PaginationInput {
+  @Field(type => String)
+  slug: string;
+}
+
 @ObjectType()
-export class CategoryOutput extends CommonOutput {
+export class CategoryOutput extends PaginationOutput {
   @Field(types => Category, { nullable: true })
   category?: Category;
 }

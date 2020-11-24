@@ -3,12 +3,20 @@
 # ------------------------------------------------------
 
 type User {
+  id: Float!
+  createAt: DateTime!
+  updatedAt: DateTime!
   email: String!
   password: String!
   role: UserRole!
   verified: Boolean
   restaurants: [Restaurant!]!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 enum UserRole {
   Client
@@ -17,6 +25,9 @@ enum UserRole {
 }
 
 type Category {
+  id: Float!
+  createAt: DateTime!
+  updatedAt: DateTime!
   name: String!
   slug: String!
   image: String!
@@ -24,6 +35,9 @@ type Category {
 }
 
 type Restaurant {
+  id: Float!
+  createAt: DateTime!
+  updatedAt: DateTime!
   name: String!
   coverImage: String!
   address: String!
@@ -135,6 +149,8 @@ input CreateUserInput {
 }
 
 input UpdateProfileInput {
+  createAt: DateTime
+  updatedAt: DateTime
   email: String
   role: UserRole
   verified: Boolean
