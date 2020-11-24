@@ -78,10 +78,25 @@ type CategoryOutput {
   error: String
   ok: Boolean!
   totalPages: Int
-  currentPages: Int
+  currentPage: Int
   countTotalItems: Int
   category: Category
   restaurants: [Restaurant!]
+}
+
+type RestaurantsOutput {
+  error: String
+  ok: Boolean!
+  totalPages: Int
+  currentPage: Int
+  countTotalItems: Int
+  restaurants: [Restaurant!]
+}
+
+type RestaurantDetailOutput {
+  error: String
+  ok: Boolean!
+  restaurant: Restaurant
 }
 
 type CreateUserOutput {
@@ -114,7 +129,8 @@ type VerificationOutput {
 }
 
 type Query {
-  restaurants: [Restaurant!]!
+  allRestaurants(page: Float!): RestaurantsOutput!
+  restaurant(id: Float!): RestaurantDetailOutput!
   category(slug: String!, page: Int = 1): CategoryOutput!
   allCategories: AllCategoriesOutput!
   me: User

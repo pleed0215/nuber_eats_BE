@@ -30,13 +30,25 @@ import {
 } from './dtos/all-categories.dto';
 import { Category } from './entities/category.entity';
 import { getRepository, Repository } from 'typeorm';
+import {
+  RestaurantDetailOutput,
+  RestaurantsInput,
+  RestaurantsOutput,
+} from './dtos/restaurants.dto';
 
 @Resolver(of => Restaurant)
 export class RestaurantsResolver {
   constructor(private readonly restaurantService: RestaurantsService) {}
-  @Query(returns => [Restaurant])
-  restaurants(): Promise<Restaurant[]> {
-    return this.restaurantService.getAll();
+  @Query(returns => RestaurantsOutput)
+  @Role(['Any'])
+  allRestaurants(@Args('page') page: number): Promise<RestaurantsOutput> {
+    return this.restaurantService.getRestaurants(page);
+  }
+
+  @Query(returns => RestaurantDetailOutput)
+  @Role(['Any'])
+  restaurant(@Args('id') id: number): Promise<RestaurantDetailOutput> {
+    return this.restaurantService.getRestaurants(id);
   }
 
   @Mutation(returns => CreateRestaurantOutput)

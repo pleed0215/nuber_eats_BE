@@ -21,6 +21,10 @@ import {
   CategoryOutput,
 } from './dtos/all-categories.dto';
 import { Int } from '@nestjs/graphql';
+import {
+  RestaurantDetailOutput,
+  RestaurantsOutput,
+} from './dtos/restaurants.dto';
 
 let PAGE_SIZE = 10;
 
@@ -180,10 +184,52 @@ export class RestaurantsService {
       return {
         ok: true,
         totalPages: Math.ceil(countTotalItems / PAGE_SIZE),
-        currentPages: page,
+        currentPage: page,
         countTotalItems,
         category,
         restaurants,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  async getRestaurants(page: number): Promise<RestaurantsOutput> {
+    try {
+      const skipCount = (page - 1) * PAGE_SIZE;
+      const [
+        restaurants,
+        countTotalItems,
+      ] = await this.restaurants.findAndCount({
+        take: PAGE_SIZE,
+        skip: skipCount,
+      });
+
+      return {
+        ok: true,
+        totalPages: Math.ceil(countTotalItems / PAGE_SIZE),
+        currentPage: page,
+        countTotalItems,
+        restaurants,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  async getRestaurant(id: number): Promise<RestaurantDetailOutput> {
+    try {
+      const restaurant = await this.restaurants.findOneOrFail(id);
+      console.log('jjj', restaurant);
+      return {
+        ok: true,
+        restaurant,
       };
     } catch (e) {
       return {
