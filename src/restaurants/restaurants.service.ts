@@ -15,7 +15,11 @@ import {
 import { CategoryRepository } from './entities/category.repository';
 import { DeleteRestaurantOutput } from './dtos/delete-restaurants.dto';
 import { Category } from './entities/category.entity';
-import { AllCategoriesOutput, CategoryOutput } from './dtos/all-categories.dto';
+import {
+  AllCategoriesOutput,
+  CategoryInput,
+  CategoryOutput,
+} from './dtos/all-categories.dto';
 
 @Injectable()
 export class RestaurantsService {
@@ -155,7 +159,10 @@ export class RestaurantsService {
     return await this.restaurants.count({ category });
   }
 
-  async getRestaurantsByCategory(slug: string): Promise<CategoryOutput> {
+  async getRestaurantsByCategory({
+    slug,
+    pag,
+  }: CategoryInput): Promise<CategoryOutput> {
     try {
       const category = await this.categories.findOneOrFail(
         { slug },
