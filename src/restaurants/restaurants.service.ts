@@ -29,8 +29,15 @@ import {
   SearchRestaurantInput,
   SearchRestaurantOutput,
 } from './dtos/search-restaurant.dto';
-import { CreateDishInput, CreateDishOutput } from './dtos/create-dish.dto';
+import {
+  CreateDishInput,
+  CreateDishOutput,
+  DeleteDishOutput,
+  UpdateDishInput,
+  UpdateDishOutput,
+} from './dtos/create-dish.dto';
 import { Dish } from './entities/dish.entity';
+import { request } from 'express';
 
 let PAGE_SIZE = 10;
 
@@ -66,6 +73,14 @@ export class RestaurantsService {
   private async isOwner(owner: User, id: number): Promise<boolean> {
     const restaurant = await this.restaurants.findOne(id);
     return restaurant && restaurant.ownerId === owner.id;
+  }
+
+  private async isOwnerAndGetRestaurant(
+    owner: User,
+    id: number,
+  ): Promise<[boolean, Restaurant]> {
+    const restaurant = await this.restaurants.findOne(id);
+    return [restaurant && restaurant.ownerId === owner.id, restaurant];
   }
 
   // createRestuarant
@@ -288,14 +303,71 @@ export class RestaurantsService {
   ): Promise<CreateDishOutput> {
     try {
       const { restaurantId, ...createOption } = input;
-      const restaurant = await this.restaurants.findOneOrFail(restaurantId);
+      const [isOwner, restaurant] = await this.isOwnerAndGetRestaurant(
+        owner,
+        restaurantId,
+      );
 
-      if (owner.id !== restaurant.ownerId)
+      if (!isOwner)
         throw Error(`Onwer: ${owner.email} is not owner of ${restaurant.name}`);
 
       await this.dishes.save(
         this.dishes.create({ ...createOption, restaurant }),
       );
+      return {
+        ok: true,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  async deleteDish(owner: User, id: number): Promise<DeleteDishOutput> {
+    try {
+      const dish = await this.dishes.findOneOrFail(id, {
+        relations: ['restaurant'],
+      });
+      const [isOwner, restaurant] = await this.isOwnerAndGetRestaurant(
+        owner,
+        dish.restaurantId,
+      );
+
+      if (!isOwner)
+        throw Error(`Onwer: ${owner.email} isn't owner of ${restaurant.name}`);
+
+      await this.dishes.delete(id);
+      return {
+        ok: true,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  async updateDish(
+    owner: User,
+    input: UpdateDishInput,
+  ): Promise<UpdateDishOutput> {
+    try {
+      const { dishId, ...update } = input;
+      const dish = await this.dishes.findOneOrFail(dishId, {
+        relations: ['restaurant'],
+      });
+      const [isOwner, restaurant] = await this.isOwnerAndGetRestaurant(
+        owner,
+        dish.restaurantId,
+      );
+
+      if (!isOwner)
+        throw Error(`Onwer: ${owner.email} isn't owner of ${restaurant.name}`);
+
+      await this.dishes.update(dishId, { ...update });
       return {
         ok: true,
       };

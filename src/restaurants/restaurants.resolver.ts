@@ -40,7 +40,13 @@ import {
   SearchRestaurantOutput,
 } from './dtos/search-restaurant.dto';
 import { Dish } from './entities/dish.entity';
-import { CreateDishInput, CreateDishOutput } from './dtos/create-dish.dto';
+import {
+  CreateDishInput,
+  CreateDishOutput,
+  DeleteDishOutput,
+  UpdateDishInput,
+  UpdateDishOutput,
+} from './dtos/create-dish.dto';
 
 @Resolver(of => Restaurant)
 export class RestaurantsResolver {
@@ -139,5 +145,23 @@ export class DishResolver {
     @Args('input') input: CreateDishInput,
   ): Promise<CreateDishOutput> {
     return this.service.createDish(owner, input);
+  }
+
+  @Mutation(type => DeleteDishOutput)
+  @Role(['Owner'])
+  deleteDish(
+    @AuthUser() owner: User,
+    @Args('dishId') id: number,
+  ): Promise<DeleteDishOutput> {
+    return this.service.deleteDish(owner, id);
+  }
+
+  @Mutation(type => UpdateDishOutput)
+  @Role(['Owner'])
+  updateDish(
+    @AuthUser() owner: User,
+    @Args() input: UpdateDishInput,
+  ): Promise<UpdateDishOutput> {
+    return this.service.updateDish(owner, input);
   }
 }

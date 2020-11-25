@@ -1,4 +1,12 @@
-import { Field, InputType, Int, ObjectType, PickType } from '@nestjs/graphql';
+import {
+  ArgsType,
+  Field,
+  InputType,
+  Int,
+  ObjectType,
+  PartialType,
+  PickType,
+} from '@nestjs/graphql';
 import { CommonOutput } from 'src/common/common.output.dto';
 import { Dish, DishOption } from '../entities/dish.entity';
 
@@ -15,3 +23,21 @@ export class CreateDishInput extends PickType(Dish, [
 
 @ObjectType()
 export class CreateDishOutput extends CommonOutput {}
+
+@ObjectType()
+export class DeleteDishOutput extends CommonOutput {}
+
+@ArgsType()
+export class UpdateDishInput extends PartialType(
+  PickType(
+    Dish,
+    ['name', 'price', 'description', 'options'] as const,
+    ArgsType,
+  ),
+) {
+  @Field(type => Int)
+  dishId: number;
+}
+
+@ObjectType()
+export class UpdateDishOutput extends CommonOutput {}
