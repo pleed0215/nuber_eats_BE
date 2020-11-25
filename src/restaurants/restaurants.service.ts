@@ -37,7 +37,6 @@ import {
   UpdateDishOutput,
 } from './dtos/create-dish.dto';
 import { Dish } from './entities/dish.entity';
-import { request } from 'express';
 
 let PAGE_SIZE = 10;
 

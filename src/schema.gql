@@ -11,6 +11,8 @@ type User {
   role: UserRole!
   verified: Boolean
   restaurants: [Restaurant!]!
+  orders: [Order!]
+  rides: [Order!]
 }
 
 """
@@ -22,6 +24,15 @@ enum UserRole {
   Client
   Owner
   Delivery
+}
+
+type Order {
+  id: Float!
+  createAt: DateTime!
+  updatedAt: DateTime!
+  customer: User
+  driver: User
+  restaurant: Restaurant!
 }
 
 type Category {
@@ -68,6 +79,7 @@ type Restaurant {
   category: Category
   owner: User!
   dishes: [Dish!]
+  orders: [Order!]
 }
 
 type CreateRestaurantOutput {
@@ -252,6 +264,8 @@ input UpdateProfileInput {
   role: UserRole
   verified: Boolean
   restaurants: [RestaurantInputType!]
+  orders: [OrderInputType!]
+  rides: [OrderInputType!]
 }
 
 input RestaurantInputType {
@@ -261,6 +275,7 @@ input RestaurantInputType {
   category: CategoryInputType
   owner: UserInputType!
   dishes: [DishInputType!]
+  orders: [OrderInputType!]
 }
 
 input CategoryInputType {
@@ -276,6 +291,14 @@ input UserInputType {
   role: UserRole!
   verified: Boolean
   restaurants: [RestaurantInputType!]!
+  orders: [OrderInputType!]
+  rides: [OrderInputType!]
+}
+
+input OrderInputType {
+  customer: UserInputType
+  driver: UserInputType
+  restaurant: RestaurantInputType!
 }
 
 input DishInputType {

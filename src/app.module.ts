@@ -21,6 +21,8 @@ import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
 import { Category } from './restaurants/entities/category.entity';
 import { Dish } from './restaurants/entities/dish.entity';
+import { OrdersModule } from './orders/orders.module';
+import { Order } from './orders/entity/order.entity';
 
 // secret key: FHaITMZg4S6Y8aooKl1O1YPTSIxDW5Vz
 
@@ -54,7 +56,7 @@ import { Dish } from './restaurants/entities/dish.entity';
       database: `nuber-eats${process.env.NODE_ENV === 'test' ? '-test' : ''}`,
       logging: process.env.NODE_ENV === 'dev',
       password: process.env['POSTGRES_PASSWORD'],
-      entities: [Restaurant, User, Verification, Category, Dish],
+      entities: [Restaurant, User, Verification, Category, Dish, Order],
       synchronize: process.env.NODE_ENV !== 'prod',
     }),
     JwtModule.forRoot({ secretKey: process.env.SECRET_KEY }),
@@ -67,6 +69,7 @@ import { Dish } from './restaurants/entities/dish.entity';
     UsersModule,
     CommonModule,
     AuthModule,
+    OrdersModule,
   ],
   controllers: [],
   providers: [],
