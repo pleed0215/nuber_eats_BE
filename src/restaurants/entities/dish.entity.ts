@@ -13,7 +13,7 @@ export class DishOption {
   @Field(type => [String], { nullable: true })
   choices?: string[];
 
-  @Field(type => Number)
+  @Field(type => Number, { nullable: true })
   extra: number;
 }
 

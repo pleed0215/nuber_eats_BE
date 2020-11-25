@@ -38,7 +38,7 @@ type Category {
 type DishOption {
   name: String!
   choices: [String!]
-  extra: Float!
+  extra: Float
 }
 
 type Dish {
@@ -214,7 +214,7 @@ input CreateDishInput {
 input DishOptionType {
   name: String!
   choices: [String!]
-  extra: Float!
+  extra: Float
 }
 
 input CreateUserInput {

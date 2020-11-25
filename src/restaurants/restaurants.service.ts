@@ -293,10 +293,9 @@ export class RestaurantsService {
       if (owner.id !== restaurant.ownerId)
         throw Error(`Onwer: ${owner.email} is not owner of ${restaurant.name}`);
 
-      const newDish = await this.dishes.create(createOption);
-      newDish.restaurant = restaurant;
-
-      await this.dishes.save(newDish);
+      await this.dishes.save(
+        this.dishes.create({ ...createOption, restaurant }),
+      );
       return {
         ok: true,
       };
