@@ -35,6 +35,24 @@ type Category {
   restaurantsOn: CategoryDetailOutput!
 }
 
+type DishOption {
+  name: String!
+  choices: [String!]
+  extra: Float!
+}
+
+type Dish {
+  id: Float!
+  createAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  price: Float!
+  photo: String
+  description: String!
+  restaurant: Restaurant!
+  options: [DishOption!]
+}
+
 type Restaurant {
   id: Float!
   createAt: DateTime!
@@ -44,6 +62,7 @@ type Restaurant {
   address: String!
   category: Category
   owner: User!
+  dishes: [Dish!]
 }
 
 type CreateRestaurantOutput {
@@ -99,6 +118,20 @@ type RestaurantDetailOutput {
   restaurant: Restaurant
 }
 
+type SearchRestaurantOutput {
+  error: String
+  ok: Boolean!
+  totalPages: Int
+  currentPage: Int
+  countTotalItems: Int
+  restaurants: [Restaurant!]
+}
+
+type CreateDishOutput {
+  error: String
+  ok: Boolean!
+}
+
 type CreateUserOutput {
   error: String
   ok: Boolean!
@@ -131,16 +164,23 @@ type VerificationOutput {
 type Query {
   allRestaurants(page: Float!): RestaurantsOutput!
   restaurant(id: Float!): RestaurantDetailOutput!
+  searchRestaurantByName(search: SearchRestaurantInput!): SearchRestaurantOutput!
   category(slug: String!, page: Int = 1): CategoryOutput!
   allCategories: AllCategoriesOutput!
   me: User
   userProfile(userId: Float!): UserProfileOutput!
 }
 
+input SearchRestaurantInput {
+  page: Int = 1
+  query: String!
+}
+
 type Mutation {
   createRestaurant(input: CreateRestaurantInput!): CreateRestaurantOutput!
   updateRestaurant(input: UpdateRestaurantInput!): UpdateRestaurantOutput!
   deleteRestaurant(id: Float!): DeleteRestaurantOutput!
+  createDish(input: CreateDishInput!): CreateDishOutput!
   createUser(input: CreateUserInput!): CreateUserOutput!
   login(email: String!, password: String!): LoginOutput!
   updateProfile(update: UpdateProfileInput!): UpdateProfileOutput!
@@ -161,6 +201,20 @@ input UpdateRestaurantInput {
   address: String
   categoryName: String
   id: Float!
+}
+
+input CreateDishInput {
+  name: String!
+  price: Float!
+  description: String!
+  options: [DishOptionType!]
+  restaurantId: Int!
+}
+
+input DishOptionType {
+  name: String!
+  choices: [String!]
+  extra: Float!
 }
 
 input CreateUserInput {
@@ -184,6 +238,7 @@ input RestaurantInputType {
   address: String!
   category: CategoryInputType
   owner: UserInputType!
+  dishes: [DishInputType!]
 }
 
 input CategoryInputType {
@@ -199,4 +254,13 @@ input UserInputType {
   role: UserRole!
   verified: Boolean
   restaurants: [RestaurantInputType!]!
+}
+
+input DishInputType {
+  name: String!
+  price: Float!
+  photo: String
+  description: String!
+  restaurant: RestaurantInputType!
+  options: [DishOptionType!]
 }

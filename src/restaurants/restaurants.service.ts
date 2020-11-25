@@ -5,7 +5,7 @@ import {
 import { Restaurant } from './entities/restaurant.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Raw, Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 
 import {
@@ -25,6 +25,12 @@ import {
   RestaurantDetailOutput,
   RestaurantsOutput,
 } from './dtos/restaurants.dto';
+import {
+  SearchRestaurantInput,
+  SearchRestaurantOutput,
+} from './dtos/search-restaurant.dto';
+import { CreateDishInput, CreateDishOutput } from './dtos/create-dish.dto';
+import { Dish } from './entities/dish.entity';
 
 let PAGE_SIZE = 10;
 
@@ -47,6 +53,8 @@ export class RestaurantsService {
     private readonly restaurants: Repository<Restaurant>,
     @InjectRepository(CategoryRepository)
     private readonly categories: CategoryRepository,
+    @InjectRepository(Dish)
+    private readonly dishes: Repository<Dish>,
   ) {}
 
   // getAll: Get all restaurants
@@ -225,11 +233,72 @@ export class RestaurantsService {
 
   async getRestaurant(id: number): Promise<RestaurantDetailOutput> {
     try {
-      const restaurant = await this.restaurants.findOneOrFail(id);
+      const restaurant = await this.restaurants.findOneOrFail(id, {
+        relations: ['category', 'owner', 'dishes'],
+      });
       console.log('jjj', restaurant);
       return {
         ok: true,
         restaurant,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  async searchRestaurantByName({
+    query,
+    page,
+  }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
+    try {
+      const skip = (page - 1) * PAGE_SIZE;
+      const [
+        restaurants,
+        countTotalItems,
+      ] = await this.restaurants.findAndCount({
+        where: {
+          //name: ILike(`%${query}%`),
+          name: Raw(name => `${name} ILIKE '%${query}%'`),
+        },
+        take: PAGE_SIZE,
+        skip,
+      });
+
+      return {
+        ok: true,
+        totalPages: Math.ceil(countTotalItems / PAGE_SIZE),
+        currentPage: page,
+        countTotalItems,
+        restaurants,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+  // dishes
+  async createDish(
+    owner: User,
+    input: CreateDishInput,
+  ): Promise<CreateDishOutput> {
+    try {
+      const { restaurantId, ...createOption } = input;
+      const restaurant = await this.restaurants.findOneOrFail(restaurantId);
+
+      if (owner.id !== restaurant.ownerId)
+        throw Error(`Onwer: ${owner.email} is not owner of ${restaurant.name}`);
+
+      const newDish = await this.dishes.create(createOption);
+      newDish.restaurant = restaurant;
+
+      await this.dishes.save(newDish);
+      return {
+        ok: true,
       };
     } catch (e) {
       return {

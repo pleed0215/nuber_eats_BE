@@ -1363,3 +1363,35 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
 
 - request가 있을 때마다 computed result를 보여주는 필드.
 -
+
+### Search part
+
+#### Like
+
+- SQL의 like문, 패턴을 검색하는데 사용한다고 보면 된다고 한다.
+- typeorm에서 사용하려면 Like함수를 import해야 한다..
+- [tutorialspoint](https://tutorialspoint.com/sql/sql-like-clause.htm)
+- Like문은 두가지 연산자가 있다.
+
+  - % operator (pecent)
+    - 0, 1개 이상의 문자.
+  - \_ operator (underscore)
+    - 한자리 숫자 또는 문자.
+  - 두 연산자를 결합해서 패턴을 표현한다.
+
+- Like의 문제점은 이를테면 소문자나 대문자를 가린다는 것. django에서도 배운 바 있는.. insensitive를 사용하면 된다. ILike
+
+#### Raw
+
+- raw query를 사용할 수도 있다.
+- Raw( name => `${name} ILIKE '%${query}'%`)
+  - 사용하는 orm이 모든 걸 지원 안 해주고 있을 수도 있는데, 그럴 때를 대비해 sql을 알아 놓으면 좋다고 한다.
+
+## 12. Dish
+
+- Entity 만들기는 계속 반복이라.. 내용 적을 게 없다.
+
+### json column
+
+- structure화 된 data를 집어 넣을 때 필요하다고 한다. 신기신기
+- mysql과 postgresql에서 사용할 수 있다고 한다.

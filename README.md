@@ -6,16 +6,16 @@
 
 ### Auth: Role is Any, not public
 
-- [ ] See Categories
-- [ ] See Restaurants by category (pagination)
-- [ ] See Restaurants (pagination)
-- [ ] See Restaurant detail
+- [x] See Categories
+- [x] See Restaurants by category (pagination)
+- [x] See Restaurants (pagination)
+- [x] See Restaurant detail
 
 ### Auth: Role is Owner
 
-- [ ] Create Restaurant
-- [ ] Edit Restaurant
-- [ ] Delete Restaurant
+- [x] Create Restaurant
+- [x] Edit Restaurant
+- [x] Delete Restaurant
 
 ## Dish
 
@@ -24,3 +24,8 @@
 - [ ] Create Dish
 - [ ] Edit Dish
 - [ ] Delete Dish
+
+- Orders CRUD
+- Orders Subscription(Owner, Customer, Delivery)
+
+- Payments
