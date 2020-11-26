@@ -23,6 +23,7 @@ import { Category } from './restaurants/entities/category.entity';
 import { Dish } from './restaurants/entities/dish.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entity/order.entity';
+import { OrderItem } from './orders/entity/order-item.entity';
 
 // secret key: FHaITMZg4S6Y8aooKl1O1YPTSIxDW5Vz
 
@@ -44,7 +45,7 @@ import { Order } from './orders/entity/order.entity';
       }),
     }),
     GraphQLModule.forRoot({
-      include: [RestaurantsModule, UsersModule],
+      include: [RestaurantsModule, UsersModule, OrdersModule],
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       context: ({ req }) => ({ user: req['user'] }),
     }),
@@ -56,7 +57,15 @@ import { Order } from './orders/entity/order.entity';
       database: `nuber-eats${process.env.NODE_ENV === 'test' ? '-test' : ''}`,
       logging: process.env.NODE_ENV === 'dev',
       password: process.env['POSTGRES_PASSWORD'],
-      entities: [Restaurant, User, Verification, Category, Dish, Order],
+      entities: [
+        Restaurant,
+        User,
+        Verification,
+        Category,
+        Dish,
+        Order,
+        OrderItem,
+      ],
       synchronize: process.env.NODE_ENV !== 'prod',
     }),
     JwtModule.forRoot({ secretKey: process.env.SECRET_KEY }),

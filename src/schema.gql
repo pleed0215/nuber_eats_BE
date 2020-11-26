@@ -26,26 +26,6 @@ enum UserRole {
   Delivery
 }
 
-type Order {
-  id: Float!
-  createAt: DateTime!
-  updatedAt: DateTime!
-  customer: User
-  driver: User
-  restaurant: Restaurant!
-}
-
-type Category {
-  id: Float!
-  createAt: DateTime!
-  updatedAt: DateTime!
-  name: String!
-  slug: String!
-  image: String!
-  restaurants: [Restaurant!]
-  restaurantsOn: CategoryDetailOutput!
-}
-
 type DishChoiceOption {
   name: String!
   extra: Float
@@ -67,6 +47,50 @@ type Dish {
   description: String!
   restaurant: Restaurant!
   options: [DishOption!]
+}
+
+type OrderItemOption {
+  name: String!
+  choice: DishChoiceOption
+  extra: Float
+}
+
+type OrderItem {
+  id: Float!
+  createAt: DateTime!
+  updatedAt: DateTime!
+  dish: Dish!
+  options: [OrderItemOption!]
+  order: Order!
+}
+
+type Order {
+  id: Float!
+  createAt: DateTime!
+  updatedAt: DateTime!
+  customer: User
+  driver: User
+  orderItems: [OrderItem!]
+  restaurant: Restaurant
+  orderStatus: OrderStatus!
+}
+
+enum OrderStatus {
+  Pending
+  Cooking
+  Pickedu
+  Deliver
+}
+
+type Category {
+  id: Float!
+  createAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  slug: String!
+  image: String!
+  restaurants: [Restaurant!]
+  restaurantsOn: CategoryDetailOutput!
 }
 
 type Restaurant {
@@ -188,6 +212,11 @@ type VerificationOutput {
   ok: Boolean!
 }
 
+type CreateOrderOutput {
+  error: String
+  ok: Boolean!
+}
+
 type Query {
   allRestaurants(page: Float!): RestaurantsOutput!
   restaurant(id: Float!): RestaurantDetailOutput!
@@ -215,6 +244,7 @@ type Mutation {
   updateProfile(update: UpdateProfileInput!): UpdateProfileOutput!
   updatePassword(password: String!): LoginOutput!
   verifyCode(code: String!): VerificationOutput!
+  createOrder(input: CreateOrderInput!): CreateOrderOutput!
 }
 
 input CreateRestaurantInput {
@@ -298,7 +328,15 @@ input UserInputType {
 input OrderInputType {
   customer: UserInputType
   driver: UserInputType
-  restaurant: RestaurantInputType!
+  orderItems: [OrderItemInputType!]
+  restaurant: RestaurantInputType
+  orderStatus: OrderStatus!
+}
+
+input OrderItemInputType {
+  dish: DishInputType!
+  options: [OrderItemOptionInputType!]
+  order: OrderInputType!
 }
 
 input DishInputType {
@@ -308,4 +346,20 @@ input DishInputType {
   description: String!
   restaurant: RestaurantInputType!
   options: [DishOptionType!]
+}
+
+input OrderItemOptionInputType {
+  name: String!
+  choice: DishChoiceType
+  extra: Float
+}
+
+input CreateOrderInput {
+  restaurantId: Int!
+  items: [CreateOrderItemInput!]!
+}
+
+input CreateOrderItemInput {
+  dishId: Int!
+  options: [OrderItemOptionInputType!]
 }

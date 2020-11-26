@@ -7,7 +7,8 @@ import {
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import { OrderItem } from './order-item.entity';
 
 export enum OrderSatus {
   Pending = 'Pending',
@@ -17,10 +18,6 @@ export enum OrderSatus {
 }
 
 registerEnumType(OrderSatus, { name: 'OrderStatus' });
-
-@InputType('OrderItemType', { isAbstract: true })
-@ObjectType()
-export class OrderItem {}
 
 @InputType('OrderInputType', { isAbstract: true })
 @ObjectType()
@@ -33,6 +30,8 @@ export class Order extends CoreEntity {
     { onDelete: 'SET NULL', nullable: true },
   )
   customer: User;
+  @RelationId((order: Order) => order.customer)
+  customerId: number;
 
   @Field(type => User, { nullable: true })
   @ManyToOne(
@@ -41,12 +40,27 @@ export class Order extends CoreEntity {
     { nullable: true, onDelete: 'SET NULL' },
   )
   driver?: User;
+  @RelationId((order: Order) => order.driver)
+  driverId: number;
 
-  @Field(type => Restaurant)
+  @Field(type => [OrderItem], { nullable: true })
+  @OneToMany(
+    type => OrderItem,
+    orderItems => orderItems.order,
+  )
+  orderItems: OrderItem[];
+
+  @Field(type => Restaurant, { nullable: true })
   @ManyToOne(
     type => Restaurant,
     restaurant => restaurant.orders,
-    { onDelete: 'SET NULL' },
+    { onDelete: 'SET NULL', nullable: true },
   )
   restaurant: Restaurant;
+  @RelationId((order: Order) => order.restaurant)
+  restaurantId: number;
+
+  @Field(type => OrderSatus)
+  @Column({ type: 'enum', enum: OrderSatus, default: 'Pending' })
+  orderStatus: OrderSatus;
 }
