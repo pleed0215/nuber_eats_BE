@@ -11,7 +11,7 @@ export class OrderItemOption {
   name: string;
 
   @Field(type => DishChoiceOption, { nullable: true })
-  choice: DishChoiceOption;
+  choice?: DishChoiceOption;
 
   @Field(type => Number, { nullable: true })
   extra?: number;

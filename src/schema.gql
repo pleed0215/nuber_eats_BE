@@ -217,6 +217,12 @@ type CreateOrderOutput {
   ok: Boolean!
 }
 
+type OrderDetailOutput {
+  error: String
+  ok: Boolean!
+  order: Order
+}
+
 type Query {
   allRestaurants(page: Float!): RestaurantsOutput!
   restaurant(id: Float!): RestaurantDetailOutput!
@@ -225,6 +231,7 @@ type Query {
   allCategories: AllCategoriesOutput!
   me: User
   userProfile(userId: Float!): UserProfileOutput!
+  orderDetail(id: Int!): OrderDetailOutput!
 }
 
 input SearchRestaurantInput {
