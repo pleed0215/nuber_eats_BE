@@ -79,7 +79,7 @@ type Order {
 enum OrderStatus {
   Pending
   Cooking
-  Pickedu
+  Pickedup
   Deliver
 }
 
@@ -224,6 +224,12 @@ type OrderDetailOutput {
   order: Order
 }
 
+type GetOrdersOutput {
+  error: String
+  ok: Boolean!
+  orders: [Order!]
+}
+
 type Query {
   allRestaurants(page: Float!): RestaurantsOutput!
   restaurant(id: Float!): RestaurantDetailOutput!
@@ -233,6 +239,7 @@ type Query {
   me: User
   userProfile(userId: Float!): UserProfileOutput!
   orderDetail(id: Int!): OrderDetailOutput!
+  getOrders(status: OrderStatus): GetOrdersOutput!
 }
 
 input SearchRestaurantInput {

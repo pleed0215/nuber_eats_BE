@@ -5,6 +5,8 @@ import { User } from 'src/users/entities/user.entity';
 import {
   CreateOrderInput,
   CreateOrderOutput,
+  GetOrdersInput,
+  GetOrdersOutput,
   OrderDetailInput,
   OrderDetailOutput,
 } from './dtos/create-order.dto';
@@ -31,5 +33,14 @@ export class OrdersResolver {
     @Args() input: OrderDetailInput,
   ): Promise<OrderDetailOutput> {
     return this.service.orderDetail(user, input.id);
+  }
+
+  @Query(returns => GetOrdersOutput)
+  @Role(['Any'])
+  getOrders(
+    @AuthUser() user,
+    @Args() input: GetOrdersInput,
+  ): Promise<GetOrdersOutput> {
+    return this.service.getOrders(user, input);
   }
 }

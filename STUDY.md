@@ -1422,3 +1422,11 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
 ### forEach 문에서는 error handling이 어렵다.
 
 - for 문을 사용하자.
+
+### Order part...는..
+
+- 니코 강의를 거의 참고하지 않고 만들고 있다.
+- 왜냐하면, order item의 option choice가 내가 하려는 방식과 너무 맞지 않기 때문이다.
+- 그래도 알아야 할 것.. map의 활용.
+- flat 함수 알아 놓으면 좋을 듯...
+- ...(status && {status}) 이 조건식 표현도 알아 놓으면 좋을 듯...

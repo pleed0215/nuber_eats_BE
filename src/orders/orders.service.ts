@@ -2,11 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dish } from 'src/restaurants/entities/dish.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
-import { User } from 'src/users/entities/user.entity';
+import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
+import { PlainObjectToNewEntityTransformer } from 'typeorm/query-builder/transformer/PlainObjectToNewEntityTransformer';
 import {
   CreateOrderInput,
   CreateOrderOutput,
+  GetOrdersInput,
+  GetOrdersOutput,
   OrderDetailOutput,
 } from './dtos/create-order.dto';
 import { OrderItem, OrderItemOption } from './entity/order-item.entity';
@@ -55,6 +58,7 @@ export class OrdersService {
         newOrderItem.options = [...item.options];
 
         for (const option of item.options) {
+          // extra can be 'null'
           if (option.extra) totalCost += option.extra;
           if (option.choice.extra) totalCost += option.choice.extra;
         }
@@ -74,6 +78,14 @@ export class OrdersService {
     }
   }
 
+  canSeeOrder(user: User, order: Order): boolean {
+    return (
+      user.id === order.customerId ||
+      user.id === order.driverId ||
+      user.id === order.restaurant.ownerId
+    );
+  }
+
   async orderDetail(user: User, id: number): Promise<OrderDetailOutput> {
     try {
       /*const order = await this.orders.findOneOrFail(id, {
@@ -90,11 +102,7 @@ export class OrdersService {
         .leftJoinAndSelect('orderItems.dish', 'dish')
         .getOneOrFail();
 
-      if (
-        user.id === order.customerId ||
-        user.id === order.driverId ||
-        user.id === order.restaurant.ownerId
-      ) {
+      if (this.canSeeOrder(user, order)) {
         return {
           ok: true,
           order,
@@ -104,6 +112,68 @@ export class OrdersService {
           `User: ${user.email} is not customer or driver or restaurant owner. No right to see this order`,
         );
       }
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  async getOrders(user: User, input: GetOrdersInput): Promise<GetOrdersOutput> {
+    /*
+      canSee: Owner, Delivery, Client
+        - Authorization
+        Owner:
+          Can See: All or one restauant's order
+        Delivery:
+          Can See: Only one restaurant's order
+        Client:
+          Can See: Only ordered restaunt's order
+
+      if order status is offered, see  orders is only that status,
+      or see all orders of all status.
+    */
+    try {
+      const { status } = input;
+      let orders;
+
+      if (user.role === UserRole.Owner) {
+        const ordersQuery = await this.orders
+          .createQueryBuilder('order')
+          .leftJoinAndSelect('order.restaurant', 'restaurant')
+          .leftJoinAndSelect('order.orderItems', 'orderItems')
+          .leftJoinAndSelect('orderItems.dish', 'dish')
+          .where('restaurant.owner.id=:ownerId', { ownerId: user.id })
+          .andWhere(status ? 'order.orderStatus=:status' : '1=1', { status })
+          .getMany();
+        orders = [...ordersQuery];
+      } else if (user.role === UserRole.Delivery) {
+        const ordersQuery = await this.orders
+          .createQueryBuilder('order')
+          .leftJoinAndSelect('order.restaurant', 'restaurant')
+          .leftJoinAndSelect('order.orderItems', 'orderItems')
+          .leftJoinAndSelect('orderItems.dish', 'dish')
+          .where('order.driver.id=:driverId', { driverId: user.id })
+          .andWhere(status ? 'order.orderStatus=:status' : '1=1', { status })
+          .getMany();
+        orders = [...ordersQuery];
+      } else if (user.role === UserRole.Client) {
+        const ordersQuery = await this.orders
+          .createQueryBuilder('order')
+          .leftJoinAndSelect('order.restaurant', 'restaurant')
+          .leftJoinAndSelect('order.orderItems', 'orderItems')
+          .leftJoinAndSelect('orderItems.dish', 'dish')
+          .where('order.customer.id=:customerId', { customerId: user.id })
+          .andWhere(status ? 'order.orderStatus=:status' : '1=1', { status })
+          .getMany();
+        orders = [...ordersQuery];
+      }
+
+      return {
+        ok: true,
+        orders,
+      };
     } catch (e) {
       return {
         ok: false,
