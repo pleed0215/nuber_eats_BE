@@ -71,6 +71,7 @@ type Order {
   customer: User
   driver: User
   orderItems: [OrderItem!]
+  totalCost: Float
   restaurant: Restaurant
   orderStatus: OrderStatus!
 }
@@ -336,6 +337,7 @@ input OrderInputType {
   customer: UserInputType
   driver: UserInputType
   orderItems: [OrderItemInputType!]
+  totalCost: Float
   restaurant: RestaurantInputType
   orderStatus: OrderStatus!
 }
