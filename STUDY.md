@@ -1435,4 +1435,23 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
 
 ### install
 
--
+- npm install graphql-subscriptions
+
+- subscription
+  - new PubSub instance를 만들고 나서..
+  - asyncIterator 호출해서 리턴을 해주는데... trigger를 옵션으로 받고, 이벤트 리스너임.
+
+### app.module에서 설정해줄 것..
+
+- graphql 관련 설정을 update 해줘야 한다.
+
+  - installSubscriptionhandlers: true 옵션을 추가해야 한다.
+  - 웹소켓 관련설정으로 보인다.
+
+- subscription을 호출하면
+
+  - request 관련 에러가 생긴다.
+  - 왜냐하면 subscription은 cookie 등을 사용하지 않기 때문..
+
+- connection이라는 것을 설정 해줘야 한다.
+  - connection에 context에 x-jwt token 등이 들어간다.

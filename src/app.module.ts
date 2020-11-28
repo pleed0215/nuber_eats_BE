@@ -45,9 +45,15 @@ import { OrderItem } from './orders/entity/order-item.entity';
       }),
     }),
     GraphQLModule.forRoot({
+      installSubscriptionHandlers: true,
       include: [RestaurantsModule, UsersModule, OrdersModule],
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      context: ({ req }) => ({ user: req['user'] }),
+      context: ({ req, connection }) => {
+        if (req) {
+          return { user: req['user'] };
+        } else {
+        }
+      },
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
