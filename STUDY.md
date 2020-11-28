@@ -1430,3 +1430,9 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
 - 그래도 알아야 할 것.. map의 활용.
 - flat 함수 알아 놓으면 좋을 듯...
 - ...(status && {status}) 이 조건식 표현도 알아 놓으면 좋을 듯...
+
+## 12. Subscription
+
+### install
+
+-

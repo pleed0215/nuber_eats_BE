@@ -3,12 +3,15 @@ import { AuthUser } from 'src/auth/auth.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { User } from 'src/users/entities/user.entity';
 import {
+  StatusesOutput,
   CreateOrderInput,
   CreateOrderOutput,
   GetOrdersInput,
   GetOrdersOutput,
   OrderDetailInput,
   OrderDetailOutput,
+  UpdateOrderInput,
+  UpdateOrderOutput,
 } from './dtos/create-order.dto';
 import { Order } from './entity/order.entity';
 import { OrdersService } from './orders.service';
@@ -42,5 +45,20 @@ export class OrdersResolver {
     @Args() input: GetOrdersInput,
   ): Promise<GetOrdersOutput> {
     return this.service.getOrders(user, input);
+  }
+
+  @Mutation(returns => UpdateOrderOutput)
+  @Role(['Owner', 'Delivery'])
+  updateOrder(
+    @AuthUser() user,
+    @Args() input: UpdateOrderInput,
+  ): Promise<UpdateOrderOutput> {
+    return this.service.updateOrder(user, input);
+  }
+
+  @Query(returns => StatusesOutput)
+  @Role(['Any'])
+  enableStatuses(@AuthUser() user): StatusesOutput {
+    return this.service.enableStatuses(user);
   }
 }

@@ -11,14 +11,15 @@ import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { OrderItem } from './order-item.entity';
 
-export enum OrderSatus {
+export enum OrderStatus {
   Pending = 'Pending',
   Cooking = 'Cooking',
+  Cooked = 'Cookded',
   Pickedup = 'Pickedup',
-  Deliver = 'Delivered',
+  Delivered = 'Delivered',
 }
 
-registerEnumType(OrderSatus, { name: 'OrderStatus' });
+registerEnumType(OrderStatus, { name: 'OrderStatus' });
 
 @InputType('OrderInputType', { isAbstract: true })
 @ObjectType()
@@ -66,8 +67,8 @@ export class Order extends CoreEntity {
   @RelationId((order: Order) => order.restaurant)
   restaurantId: number;
 
-  @Field(type => OrderSatus)
-  @Column({ type: 'enum', enum: OrderSatus, default: 'Pending' })
-  @IsEnum(OrderSatus)
-  orderStatus: OrderSatus;
+  @Field(type => OrderStatus)
+  @Column({ type: 'enum', enum: OrderStatus, default: 'Pending' })
+  @IsEnum(OrderStatus)
+  orderStatus: OrderStatus;
 }

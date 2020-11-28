@@ -11,9 +11,12 @@ import {
   GetOrdersInput,
   GetOrdersOutput,
   OrderDetailOutput,
+  StatusesOutput,
+  UpdateOrderInput,
+  UpdateOrderOutput,
 } from './dtos/create-order.dto';
 import { OrderItem, OrderItemOption } from './entity/order-item.entity';
-import { Order } from './entity/order.entity';
+import { Order, OrderStatus } from './entity/order.entity';
 
 @Injectable()
 export class OrdersService {
@@ -180,5 +183,69 @@ export class OrdersService {
         error: e.toString(),
       };
     }
+  }
+
+  async updateOrder(
+    user: User,
+    { id, orderStatus }: UpdateOrderInput,
+  ): Promise<UpdateOrderOutput> {
+    try {
+      const order = await this.orders.findOneOrFail(id, {
+        relations: ['restaurant'],
+      });
+      if (user.id !== order.restaurant.ownerId)
+        throw Error(
+          `Owner: ${user.email} is not owner of ${order.restaurant.name}`,
+        );
+
+      if (
+        orderStatus === OrderStatus.Cooked ||
+        orderStatus === OrderStatus.Cooking
+      ) {
+        if (user.role !== UserRole.Owner)
+          throw Error(
+            'Only owner can change order status to Cooked or Cooking',
+          );
+      } else if (
+        orderStatus === OrderStatus.Pickedup ||
+        orderStatus === OrderStatus.Delivered
+      ) {
+        if (user.role !== UserRole.Delivery)
+          throw Error(
+            'Only deliver can change order status to Pickedup or Delivered',
+          );
+      } else {
+        throw Error('Status is invalid.');
+      }
+
+      this.orders.update(id, { orderStatus });
+      return {
+        ok: true,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  enableStatuses(user: User): StatusesOutput {
+    let statuses: OrderStatus[] = [];
+
+    switch (user.role) {
+      case UserRole.Owner:
+        statuses = [OrderStatus.Cooked, OrderStatus.Cooking];
+        break;
+      case UserRole.Delivery:
+        statuses = [OrderStatus.Delivered, OrderStatus.Pickedup];
+        break;
+      default:
+        break;
+    }
+    return {
+      ok: true,
+      statuses,
+    };
   }
 }

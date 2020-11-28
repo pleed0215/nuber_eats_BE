@@ -1,9 +1,15 @@
-import { ArgsType, Field, InputType, Int, ObjectType } from '@nestjs/graphql';
+import {
+  ArgsType,
+  Field,
+  InputType,
+  Int,
+  ObjectType,
+  PickType,
+} from '@nestjs/graphql';
+
 import { CommonOutput } from 'src/common/common.output.dto';
-import { DishOption } from 'src/restaurants/entities/dish.entity';
-import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { OrderItemOption } from '../entity/order-item.entity';
-import { Order, OrderSatus } from '../entity/order.entity';
+import { Order, OrderStatus } from '../entity/order.entity';
 
 @InputType()
 export class CreateOrderItemInput {
@@ -40,12 +46,28 @@ export class OrderDetailOutput extends CommonOutput {
 
 @ArgsType()
 export class GetOrdersInput {
-  @Field(type => OrderSatus, { nullable: true })
-  status?: OrderSatus;
+  @Field(type => OrderStatus, { nullable: true })
+  status?: OrderStatus;
 }
 
 @ObjectType()
 export class GetOrdersOutput extends CommonOutput {
   @Field(type => [Order], { nullable: true })
   orders?: Order[];
+}
+
+@ArgsType()
+export class UpdateOrderInput extends PickType(
+  Order,
+  ['id', 'orderStatus'] as const,
+  ArgsType,
+) {}
+
+@ObjectType()
+export class UpdateOrderOutput extends CommonOutput {}
+
+@ObjectType()
+export class StatusesOutput extends CommonOutput {
+  @Field(type => [OrderStatus])
+  statuses: OrderStatus[];
 }
