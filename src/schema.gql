@@ -274,7 +274,6 @@ type Mutation {
   verifyCode(code: String!): VerificationOutput!
   createOrder(input: CreateOrderInput!): CreateOrderOutput!
   updateOrder(id: Float!, orderStatus: OrderStatus!): UpdateOrderOutput!
-  orderReady(id: Float!): Boolean!
 }
 
 input CreateRestaurantInput {
@@ -396,5 +395,7 @@ input CreateOrderItemInput {
 }
 
 type Subscription {
-  orderSubscription(id: Float!): String!
+  pendingOrders: Order!
+  cookedOrders: Order!
+  orderUpdate: Order!
 }

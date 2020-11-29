@@ -1,5 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PubSub } from 'graphql-subscriptions';
+import {
+  PUB_SUB,
+  TRIGGER_NEW_COOKED_ORDER,
+  TRIGGER_NEW_PENDING_ORDER,
+  TRIGGER_ORDER_UPDATE,
+} from 'src/common/common.constant';
 import { Dish } from 'src/restaurants/entities/dish.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { User, UserRole } from 'src/users/entities/user.entity';
@@ -28,6 +35,8 @@ export class OrdersService {
     private readonly orderItems: Repository<OrderItem>,
     @InjectRepository(Dish)
     private readonly dishes: Repository<Dish>,
+    @Inject(PUB_SUB)
+    private readonly pubsub: PubSub,
   ) {}
 
   async createOrder(
@@ -43,6 +52,7 @@ export class OrdersService {
       const newOrder = await this.orders.save(
         this.orders.create({ restaurant, customer }),
       );
+
       const newOrderItems: OrderItem[] = [];
 
       for (const item of items) {
@@ -67,8 +77,12 @@ export class OrdersService {
         }
         newOrderItems.push(await this.orderItems.save(newOrderItem));
       }
-
+      newOrder.orderItems = [...newOrderItems];
+      newOrder.totalCost = totalCost;
       await this.orders.update(newOrder.id, { totalCost });
+      await this.pubsub.publish(TRIGGER_NEW_PENDING_ORDER, {
+        pendingOrders: { order: newOrder, ownerId: restaurant.ownerId },
+      });
 
       return {
         ok: true,
@@ -191,34 +205,59 @@ export class OrdersService {
   ): Promise<UpdateOrderOutput> {
     try {
       const order = await this.orders.findOneOrFail(id, {
-        relations: ['restaurant'],
+        relations: ['restaurant', 'restaurant.owner', 'customer', 'driver'],
       });
       if (user.id !== order.restaurant.ownerId)
         throw Error(
           `Owner: ${user.email} is not owner of ${order.restaurant.name}`,
         );
-
+      let willUpdate = {};
       if (
         orderStatus === OrderStatus.Cooked ||
         orderStatus === OrderStatus.Cooking
       ) {
-        if (user.role !== UserRole.Owner)
+        if (user.role !== UserRole.Owner) {
           throw Error(
             'Only owner can change order status to Cooked or Cooking',
           );
+        } else {
+          if (orderStatus === OrderStatus.Cooked) {
+            this.pubsub.publish(TRIGGER_NEW_COOKED_ORDER, {
+              cookedOrders: {
+                order: {
+                  ...order,
+                  orderStatus,
+                },
+              },
+            });
+          }
+        }
       } else if (
         orderStatus === OrderStatus.Pickedup ||
         orderStatus === OrderStatus.Delivered
       ) {
-        if (user.role !== UserRole.Delivery)
+        if (user.role !== UserRole.Delivery) {
           throw Error(
             'Only deliver can change order status to Pickedup or Delivered',
           );
+        } else {
+          willUpdate = {
+            driver: user,
+          };
+        }
       } else {
         throw Error('Status is invalid.');
       }
-
-      this.orders.update(id, { orderStatus });
+      this.orders.update(id, { ...willUpdate });
+      await this.pubsub.publish(TRIGGER_ORDER_UPDATE, {
+        orderUpdate: {
+          order: {
+            ...order,
+            ...willUpdate,
+            orderStatus,
+          },
+        },
+      });
       return {
         ok: true,
       };
@@ -248,4 +287,6 @@ export class OrdersService {
       statuses,
     };
   }
+
+  // subscriptions
 }

@@ -1499,4 +1499,8 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
   }
   ```
 - subscription에서 준 조건과 mutation에서와의 조건이 같으면 mutation을 실행할 수 있게끔?? 해주는 듯..
--
+- resolve는 받은 payload를 어떻게 처리할 것인가 관련된 내용..
+
+#### save method는 update의 경우 whole data를 리턴 해주지 않는다.
+
+- update 된 part만 리턴을 해준다.

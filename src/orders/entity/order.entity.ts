@@ -29,7 +29,7 @@ export class Order extends CoreEntity {
   @ManyToOne(
     type => User,
     user => user.orders,
-    { onDelete: 'SET NULL', nullable: true },
+    { onDelete: 'SET NULL', nullable: true, eager: true },
   )
   customer: User;
   @RelationId((order: Order) => order.customer)
@@ -49,6 +49,7 @@ export class Order extends CoreEntity {
   @OneToMany(
     type => OrderItem,
     orderItems => orderItems.order,
+    { eager: true },
   )
   orderItems: OrderItem[];
 

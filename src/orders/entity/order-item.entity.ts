@@ -25,7 +25,7 @@ export class OrderItem extends CoreEntity {
   @ManyToOne(
     type => Dish,
     dish => dish.orderItems,
-    { onDelete: 'CASCADE' },
+    { onDelete: 'CASCADE', eager: true },
   )
   dish: Dish;
 

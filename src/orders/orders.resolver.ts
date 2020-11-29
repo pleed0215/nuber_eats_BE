@@ -4,7 +4,12 @@ import { PubSub } from 'graphql-subscriptions';
 
 import { AuthUser } from 'src/auth/auth.decorator';
 import { Role } from 'src/auth/role.decorator';
-import { PUB_SUB } from 'src/common/common.constant';
+import {
+  PUB_SUB,
+  TRIGGER_NEW_COOKED_ORDER,
+  TRIGGER_NEW_PENDING_ORDER,
+  TRIGGER_ORDER_UPDATE,
+} from 'src/common/common.constant';
 import { User } from 'src/users/entities/user.entity';
 import {
   StatusesOutput,
@@ -69,23 +74,33 @@ export class OrdersResolver {
     return this.service.enableStatuses(user);
   }
 
-  @Subscription(returns => String, {
-    filter: ({ orderSubscription }, { id }) => {
-      console.log(orderSubscription, id);
-      return true;
+  @Subscription(returns => Order, {
+    filter: ({ pendingOrders: { ownerId } }, _, { user }) => {
+      return user.id === ownerId;
     },
+    resolve: ({ pendingOrders: { order } }) => order,
   })
-  @Role(['Any'])
-  orderSubscription(@AuthUser() user: User, @Args('id') id: number) {
-    return this.pubsub.asyncIterator('orderSubscription');
+  @Role(['Owner'])
+  pendingOrders() {
+    return this.pubsub.asyncIterator(TRIGGER_NEW_PENDING_ORDER);
   }
 
-  @Mutation(returns => Boolean)
-  orderReady(@Args('id') id: number) {
-    console.log(id);
-    this.pubsub.publish('orderSubscription', {
-      orderSubscription: 'Subscription is ready.',
-    });
-    return true;
+  @Subscription(returns => Order, {
+    filter: ({ cookedOrders: { ownerId } }, _, { user }) => {
+      return true;
+    },
+    resolve: ({ cookedOrders: { order } }) => order,
+  })
+  @Role(['Delivery'])
+  cookedOrders() {
+    return this.pubsub.asyncIterator(TRIGGER_NEW_COOKED_ORDER);
+  }
+
+  @Subscription(returns => Order, {
+    resolve: ({ orderUpdate: { order } }) => order,
+  })
+  @Role(['Any'])
+  orderUpdate() {
+    return this.pubsub.asyncIterator(TRIGGER_ORDER_UPDATE);
   }
 }
