@@ -1454,4 +1454,49 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
   - 왜냐하면 subscription은 cookie 등을 사용하지 않기 때문..
 
 - connection이라는 것을 설정 해줘야 한다.
+
   - connection에 context에 x-jwt token 등이 들어간다.
+
+- jwt middleware를 지우자.
+  - auth guard에서 새로 authorization을 설정해준다.
+  - auth guard의 graphql context를 console.log 해보면..
+  - 놀랍게도 http header가 들어가 있다. 이걸 쓰면 된다.
+  - 그런데 subscription을 요청하면... req: undefined가 나온다...??? 그럼 어떡해?
+  - graqph의 context 넘겨주는 부분이 제일 낫다...
+  - connection을 넘겨줄 수도 있기 때문에 이부분과 authguard를 수정해야 한다.
+  -
+
+#### Global Module
+
+- @Inject로 ... order resolver constructor확인 바람.
+
+#### graphql-subscriptions package의 문제점
+
+- 서버가 열개라도, 한가지의 pubsub 밖에 못 가진다.
+- 그래서 graphql-redis-subscriptions를 인스톨해라.
+
+#### subscription filter
+
+- filtering이 없으면 subscription은 useless하다할 정도...
+
+- @Subscription의 definition에 가보면, options가 있는데, 여기에 filter와 resolver 옵션이 있다.
+  ```js
+  export interface SubscriptionOptions extends BaseTypeOptions {
+    name?: string;
+    description?: string;
+    deprecationReason?: string;
+    filter?: (
+      payload: any,
+      variables: any,
+      context: any,
+    ) => boolean | Promise<boolean>;
+    resolve?: (
+      payload: any,
+      args: any,
+      context: any,
+      info: any,
+    ) => any | Promise<any>;
+  }
+  ```
+- subscription에서 준 조건과 mutation에서와의 조건이 같으면 mutation을 실행할 수 있게끔?? 해주는 듯..
+-

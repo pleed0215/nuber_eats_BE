@@ -24,6 +24,8 @@ import { Dish } from './restaurants/entities/dish.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entity/order.entity';
 import { OrderItem } from './orders/entity/order-item.entity';
+import * as jwt from 'jsonwebtoken';
+import { getRepository } from 'typeorm';
 
 // secret key: FHaITMZg4S6Y8aooKl1O1YPTSIxDW5Vz
 
@@ -48,11 +50,10 @@ import { OrderItem } from './orders/entity/order-item.entity';
       installSubscriptionHandlers: true,
       include: [RestaurantsModule, UsersModule, OrdersModule],
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      context: ({ req, connection }) => {
-        if (req) {
-          return { user: req['user'] };
-        } else {
-        }
+      context: async ({ req, connection }) => {
+        return {
+          token: req ? req.headers['x-jwt'] : connection.context['x-jwt'],
+        };
       },
     }),
     TypeOrmModule.forRoot({
@@ -89,6 +90,9 @@ import { OrderItem } from './orders/entity/order-item.entity';
   controllers: [],
   providers: [],
 })
+export class AppModule {}
+/*
+graphql subscription 관련 authorization 문제가 있어서, AuthGuard에서 설정하도록 한다.
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(JwtMiddleware).forRoutes({
@@ -97,3 +101,4 @@ export class AppModule implements NestModule {
     });
   }
 }
+*/
