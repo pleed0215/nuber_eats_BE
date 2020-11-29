@@ -397,5 +397,5 @@ input CreateOrderItemInput {
 type Subscription {
   pendingOrders: Order!
   cookedOrders: Order!
-  orderUpdate: Order!
+  orderUpdate(orderId: Float!): Order!
 }

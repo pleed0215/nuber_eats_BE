@@ -207,7 +207,7 @@ export class OrdersService {
       const order = await this.orders.findOneOrFail(id, {
         relations: ['restaurant', 'restaurant.owner', 'customer', 'driver'],
       });
-      if (user.id !== order.restaurant.ownerId)
+      if (user.role === UserRole.Owner && user.id !== order.restaurant.ownerId)
         throw Error(
           `Owner: ${user.email} is not owner of ${order.restaurant.name}`,
         );
@@ -241,9 +241,15 @@ export class OrdersService {
             'Only deliver can change order status to Pickedup or Delivered',
           );
         } else {
-          willUpdate = {
-            driver: user,
-          };
+          if (orderStatus === OrderStatus.Pickedup) {
+            if (order.driver)
+              throw Error(
+                `This order id: ${order.id} already has driver to delivery.`,
+              );
+            willUpdate = {
+              driver: user,
+            };
+          }
         }
       } else {
         throw Error('Status is invalid.');
@@ -287,6 +293,4 @@ export class OrdersService {
       statuses,
     };
   }
-
-  // subscriptions
 }

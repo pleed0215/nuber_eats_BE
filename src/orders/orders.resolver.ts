@@ -97,10 +97,23 @@ export class OrdersResolver {
   }
 
   @Subscription(returns => Order, {
+    filter: (
+      { orderUpdate: { order } },
+      { orderId },
+      { user }: { user: User },
+    ) => {
+      if (
+        order.customer.id === user.id ||
+        order.driver.id === user.id ||
+        order.restaurant.owner.id === user.id
+      )
+        return order.id === orderId;
+      else return false;
+    },
     resolve: ({ orderUpdate: { order } }) => order,
   })
   @Role(['Any'])
-  orderUpdate() {
+  orderUpdate(@Args('orderId') orderId: number) {
     return this.pubsub.asyncIterator(TRIGGER_ORDER_UPDATE);
   }
 }
