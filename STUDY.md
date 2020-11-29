@@ -1504,3 +1504,7 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
 #### save method는 update의 경우 whole data를 리턴 해주지 않는다.
 
 - update 된 part만 리턴을 해준다.
+
+* eager relation, lazy relation
+  - eager: 로드할 때 eager: true 해주면 따로 relations에서 설정 안해줘도 관련 엔티티에서 읽어온다.
+  - lazy: Promise await async 사용하는...
