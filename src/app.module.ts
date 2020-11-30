@@ -1,10 +1,5 @@
 import { Restaurant } from './restaurants/entities/restaurant.entity';
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -25,12 +20,15 @@ import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entity/order.entity';
 import { OrderItem } from './orders/entity/order-item.entity';
 import * as jwt from 'jsonwebtoken';
-import { getRepository } from 'typeorm';
+import { PaymentsModule } from './payments/payments.module';
+import { Payment } from './payments/entity/payment.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 // secret key: FHaITMZg4S6Y8aooKl1O1YPTSIxDW5Vz
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'dev' ? '.dev.env' : '.test.env',
@@ -48,7 +46,7 @@ import { getRepository } from 'typeorm';
     }),
     GraphQLModule.forRoot({
       installSubscriptionHandlers: true,
-      include: [RestaurantsModule, UsersModule, OrdersModule],
+      include: [RestaurantsModule, UsersModule, OrdersModule, PaymentsModule],
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       context: async ({ req, connection }) => {
         return {
@@ -72,6 +70,7 @@ import { getRepository } from 'typeorm';
         Dish,
         Order,
         OrderItem,
+        Payment,
       ],
       synchronize: process.env.NODE_ENV !== 'prod',
     }),
@@ -86,6 +85,7 @@ import { getRepository } from 'typeorm';
     CommonModule,
     AuthModule,
     OrdersModule,
+    PaymentsModule,
   ],
   controllers: [],
   providers: [],

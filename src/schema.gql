@@ -2,6 +2,20 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Payment {
+  id: Float!
+  createAt: DateTime!
+  updatedAt: DateTime!
+  transactionId: Int!
+  owner: User!
+  restaurant: Restaurant!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type User {
   id: Float!
   createAt: DateTime!
@@ -13,12 +27,8 @@ type User {
   restaurants: [Restaurant!]!
   orders: [Order!]
   rides: [Order!]
+  payments: [Payment!]
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 enum UserRole {
   Client
@@ -106,6 +116,9 @@ type Restaurant {
   owner: User!
   dishes: [Dish!]
   orders: [Order!]
+  payments: [Payment!]
+  isPromoted: Boolean!
+  promotedUntil: DateTime
 }
 
 type CreateRestaurantOutput {
@@ -242,6 +255,24 @@ type StatusesOutput {
   statuses: [OrderStatus!]!
 }
 
+type CreatePaymentOutput {
+  error: String
+  ok: Boolean!
+}
+
+type GetPaymentOutput {
+  error: String
+  ok: Boolean!
+  payment: Payment
+}
+
+type GetAllPaymentsOutput {
+  error: String
+  ok: Boolean!
+  payments: [Payment!]
+  count: Int
+}
+
 type Query {
   allRestaurants(page: Float!): RestaurantsOutput!
   restaurant(id: Float!): RestaurantDetailOutput!
@@ -253,6 +284,8 @@ type Query {
   orderDetail(id: Int!): OrderDetailOutput!
   getOrders(status: OrderStatus): GetOrdersOutput!
   enableStatuses: StatusesOutput!
+  getPayment(id: Float!): GetPaymentOutput!
+  getAllPayments: GetAllPaymentsOutput!
 }
 
 input SearchRestaurantInput {
@@ -274,6 +307,7 @@ type Mutation {
   verifyCode(code: String!): VerificationOutput!
   createOrder(input: CreateOrderInput!): CreateOrderOutput!
   updateOrder(id: Float!, orderStatus: OrderStatus!): UpdateOrderOutput!
+  createPayment(input: CreatePaymentInput!): CreatePaymentOutput!
 }
 
 input CreateRestaurantInput {
@@ -325,6 +359,7 @@ input UpdateProfileInput {
   restaurants: [RestaurantInputType!]
   orders: [OrderInputType!]
   rides: [OrderInputType!]
+  payments: [PaymentInputType!]
 }
 
 input RestaurantInputType {
@@ -335,6 +370,9 @@ input RestaurantInputType {
   owner: UserInputType!
   dishes: [DishInputType!]
   orders: [OrderInputType!]
+  payments: [PaymentInputType!]
+  isPromoted: Boolean!
+  promotedUntil: DateTime
 }
 
 input CategoryInputType {
@@ -352,6 +390,7 @@ input UserInputType {
   restaurants: [RestaurantInputType!]!
   orders: [OrderInputType!]
   rides: [OrderInputType!]
+  payments: [PaymentInputType!]
 }
 
 input OrderInputType {
@@ -384,6 +423,12 @@ input OrderItemOptionInputType {
   extra: Float
 }
 
+input PaymentInputType {
+  transactionId: Int!
+  owner: UserInputType!
+  restaurant: RestaurantInputType!
+}
+
 input CreateOrderInput {
   restaurantId: Int!
   items: [CreateOrderItemInput!]!
@@ -392,6 +437,11 @@ input CreateOrderInput {
 input CreateOrderItemInput {
   dishId: Int!
   options: [OrderItemOptionInputType!]
+}
+
+input CreatePaymentInput {
+  transactionId: Int!
+  restaurantId: Int!
 }
 
 type Subscription {

@@ -228,6 +228,9 @@ export class RestaurantsService {
       ] = await this.restaurants.findAndCount({
         take: PAGE_SIZE,
         skip: skipCount,
+        order: {
+          isPromoted: 'DESC',
+        },
       });
 
       return {
@@ -279,6 +282,9 @@ export class RestaurantsService {
         },
         take: PAGE_SIZE,
         skip,
+        order: {
+          isPromoted: 'DESC',
+        },
       });
 
       return {

@@ -19,6 +19,7 @@ import { IsBoolean, IsEmail, IsEnum, IsString } from 'class-validator';
 import { Verification } from './verification.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { Order } from 'src/orders/entity/order.entity';
+import { Payment } from 'src/payments/entity/payment.entity';
 
 export enum UserRole {
   Client = 'Client',
@@ -82,6 +83,13 @@ export class User extends CoreEntity {
     { nullable: true },
   )
   rides: Order[];
+
+  @Field(type => [Payment], { nullable: true })
+  @OneToMany(
+    type => Payment,
+    payment => payment.owner,
+  )
+  payments?: Payment[];
 
   @BeforeInsert()
   @BeforeUpdate()

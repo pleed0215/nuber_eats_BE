@@ -1508,3 +1508,62 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
 * eager relation, lazy relation
   - eager: 로드할 때 eager: true 해주면 따로 relations에서 설정 안해줘도 관련 엔티티에서 읽어온다.
   - lazy: Promise await async 사용하는...
+
+# 13. Payments
+
+## Paddle
+
+- paddle.com
+- 거의 모든 국가에서 사용하고, 니코 본인도 사용하기 때문에 알려준다고... payments 방법은 많다.
+- software만 팔 수 있고, real stuff는 팔 수 없다.
+- developer가 할 수 있다.
+
+## stripe
+
+- stripe.com
+- 이건 company가 필요하다.
+
+## braintree
+
+- braintreepayments.com
+- 여기도 company가 필요하다.
+
+## Task Scheduling
+
+- 여기서 가장 중요한 내용..
+- npm install --save @nestjs/schedule
+
+### CRON pattern
+
+- Asterisk (\*)
+- Ranges(eg. 1-3, 5)
+- Steps (e.g \*/2) - every 2 step
+
+\*\*\*\*\*\*
+순서대로 second(optional), minute, hour, day of month, month, day of week
+
+```
+****** : every second
+45***** : every minute, on the 45th second
+*10***** : every hour, at the start of the 10th minute
+0 */30 9-17 *** every 30 minutes between 9am-5pm
+0 30 11  * * 1-5 Mon to Fri at 11:30am
+```
+
+- 스케쥴링을 이렇게 쉽게 할 수 있다니..
+
+### Interval
+
+- @Interval
+
+### Timeout
+
+- @Timeout
+
+### SchedulerRegistry
+
+- schedule을 제어..
+
+### 이 중요한걸 이제서야 알려주다니..
+
+### LessThan, where condition filtering...
