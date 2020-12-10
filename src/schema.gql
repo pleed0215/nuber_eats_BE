@@ -351,82 +351,8 @@ input CreateUserInput {
 }
 
 input UpdateProfileInput {
-  createAt: DateTime
-  updatedAt: DateTime
   email: String
   role: UserRole
-  verified: Boolean
-  restaurants: [RestaurantInputType!]
-  orders: [OrderInputType!]
-  rides: [OrderInputType!]
-  payments: [PaymentInputType!]
-}
-
-input RestaurantInputType {
-  name: String!
-  coverImage: String!
-  address: String!
-  category: CategoryInputType
-  owner: UserInputType!
-  dishes: [DishInputType!]
-  orders: [OrderInputType!]
-  payments: [PaymentInputType!]
-  isPromoted: Boolean!
-  promotedUntil: DateTime
-}
-
-input CategoryInputType {
-  name: String!
-  slug: String!
-  image: String!
-  restaurants: [RestaurantInputType!]
-}
-
-input UserInputType {
-  email: String!
-  password: String!
-  role: UserRole!
-  verified: Boolean
-  restaurants: [RestaurantInputType!]!
-  orders: [OrderInputType!]
-  rides: [OrderInputType!]
-  payments: [PaymentInputType!]
-}
-
-input OrderInputType {
-  customer: UserInputType
-  driver: UserInputType
-  orderItems: [OrderItemInputType!]
-  totalCost: Float
-  restaurant: RestaurantInputType
-  orderStatus: OrderStatus!
-}
-
-input OrderItemInputType {
-  dish: DishInputType!
-  options: [OrderItemOptionInputType!]
-  order: OrderInputType!
-}
-
-input DishInputType {
-  name: String!
-  price: Float!
-  photo: String
-  description: String!
-  restaurant: RestaurantInputType!
-  options: [DishOptionType!]
-}
-
-input OrderItemOptionInputType {
-  name: String!
-  choice: DishChoiceType
-  extra: Float
-}
-
-input PaymentInputType {
-  transactionId: Int!
-  owner: UserInputType!
-  restaurant: RestaurantInputType!
 }
 
 input CreateOrderInput {
@@ -437,6 +363,12 @@ input CreateOrderInput {
 input CreateOrderItemInput {
   dishId: Int!
   options: [OrderItemOptionInputType!]
+}
+
+input OrderItemOptionInputType {
+  name: String!
+  choice: DishChoiceType
+  extra: Float
 }
 
 input CreatePaymentInput {

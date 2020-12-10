@@ -20,7 +20,7 @@ class UserExceptPasswordId extends OmitType(
 
 @InputType()
 export class UpdateProfileInput extends PartialType(
-  UserExceptPasswordId,
+  PickType(UserExceptPasswordId, ['email', 'role'] as const),
   InputType,
 ) {}
 

@@ -125,6 +125,7 @@ export class UsersService {
       });
       const { email } = updatedInput;
       let code = null;
+      let verified: boolean = updatedUser.verified;
       if (email && email !== updatedUser.email) {
         if (updatedUser.verification)
           await this.verifications.delete(updatedUser.verification);
@@ -132,9 +133,9 @@ export class UsersService {
           this.verifications.create({ user: updatedUser }),
         );
         code = newVerification.code;
-        updatedInput.verified = false;
+        verified = false;
       }
-      await this.users.update({ id: userId }, { ...updatedInput });
+      await this.users.update({ id: userId }, { ...updatedInput, verified });
 
       if (email && code)
         await this.mailService.sendVerificationEmail(
