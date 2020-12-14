@@ -231,6 +231,7 @@ export class RestaurantsService {
         order: {
           isPromoted: 'DESC',
         },
+        relations: ['category', 'dishes'],
       });
 
       return {
