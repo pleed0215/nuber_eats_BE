@@ -200,7 +200,7 @@ export class RestaurantsService {
         where: { category },
         take: PAGE_SIZE,
         skip: skipCount,
-        relations: ['restaurants', 'restaurants.category'],
+        relations: ['category'],
       });
       const countTotalItems = await this.countRestaurantsInCategory(category);
 
