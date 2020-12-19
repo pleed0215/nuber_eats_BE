@@ -4,6 +4,7 @@ import {
   ArgsType,
   Field,
   InputType,
+  Int,
   ObjectType,
   OmitType,
   PickType,
@@ -26,6 +27,15 @@ export class CreateRestaurantInput extends PickType(Restaurant, [
 export class CreateRestaurantOutput extends CommonOutput {
   @Field(type => Restaurant, { nullable: true })
   data?: Restaurant;
+}
+
+@ObjectType()
+export class MyRestaurantsOutput extends CommonOutput {
+  @Field(type => [Restaurant], { nullable: true })
+  restaurants?: Restaurant[];
+
+  @Field(type => Int, { nullable: true })
+  count?: number;
 }
 // mapped type으로 인해 정의 안해도 된다.
 // 3번째 argument는 생략되어 있으면, 부모의 decorator와 동일하고, 주어진다면 그 decorator를 따라간다.

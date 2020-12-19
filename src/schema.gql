@@ -127,6 +127,13 @@ type CreateRestaurantOutput {
   data: Restaurant
 }
 
+type MyRestaurantsOutput {
+  error: String
+  ok: Boolean!
+  restaurants: [Restaurant!]
+  count: Int
+}
+
 type UpdateRestaurantOutput {
   error: String
   ok: Boolean!
@@ -277,6 +284,7 @@ type Query {
   allRestaurants(page: Float!): RestaurantsOutput!
   restaurant(id: Float!): RestaurantDetailOutput!
   searchRestaurantByName(search: SearchRestaurantInput!): SearchRestaurantOutput!
+  myRestaurants: MyRestaurantsOutput!
   category(slug: String!, page: Int = 1): CategoryOutput!
   allCategories: AllCategoriesOutput!
   me: User

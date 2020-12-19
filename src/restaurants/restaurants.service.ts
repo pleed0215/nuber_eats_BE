@@ -1,6 +1,7 @@
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
+  MyRestaurantsOutput,
 } from './dtos/create-restaurant.dto';
 import { Restaurant } from './entities/restaurant.entity';
 import { Injectable } from '@nestjs/common';
@@ -377,6 +378,29 @@ export class RestaurantsService {
       await this.dishes.update(dishId, { ...update });
       return {
         ok: true,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  async myRestaurants(owner: User): Promise<MyRestaurantsOutput> {
+    try {
+      const [restaurants, count] = await this.restaurants.findAndCount({
+        where: {
+          owner,
+        },
+        relations: ['category'],
+      });
+
+      return {
+        ok: true,
+        error: null,
+        count,
+        restaurants,
       };
     } catch (e) {
       return {

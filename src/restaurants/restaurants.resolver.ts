@@ -11,6 +11,7 @@ import {
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
+  MyRestaurantsOutput,
 } from './dtos/create-restaurant.dto';
 import { Restaurant } from './entities/restaurant.entity';
 
@@ -98,6 +99,14 @@ export class RestaurantsResolver {
     @Args('id') id: number,
   ): Promise<DeleteRestaurantOutput> {
     return this.restaurantService.deleteRestaurant(authUser, id);
+  }
+
+  @Query(returns => MyRestaurantsOutput)
+  @Role(['Owner'])
+  async myRestaurants(
+    @AuthUser() authUser: User,
+  ): Promise<MyRestaurantsOutput> {
+    return this.restaurantService.myRestaurants(authUser);
   }
 }
 
