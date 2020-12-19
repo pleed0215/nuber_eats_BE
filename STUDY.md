@@ -1567,3 +1567,54 @@ mocking을 물론 할 수도 있다. sendEmail같은 경우에는... 필요 없�
 ### 이 중요한걸 이제서야 알려주다니..
 
 ### LessThan, where condition filtering...
+
+## 14. Uploads
+
+- file upload관련하여 nestjs는 이미 multer를 built-in으로 사용하고 있다.
+
+- s3를 이용할 것이므로 s3 설정하러 가야한다. IAM으로 가서 사용자도 추가한다.
+
+- IAM 권한을 줄 때 S3 full access 권한 주는 걸로 만들어 주면 .. 일단 여기 강의에서는 OK
+- 아 그리고 프로그래밍 식으로 접근하는 방향으로 해야 키를 준다.
+
+### aws-sdk
+
+> npm install aws-sdk
+
+### controller setting.
+
+- 일단, env든 어디든 accessKey와 secretAcceessKey는 보관해 놓자.
+
+```ts
+AWS.config.update({
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
+  },
+});
+```
+
+uploadFile method에 이렇게 해 놓았던데, 매번 이렇게 updating해야 하는지 의문.. 다른 곳으로 옮길 수 있나 궁금하다.
+
+그리고 나서 bucket 생성
+
+```ts
+await new AWS.S3()
+  .createBucket({
+    Bucket: BUCKET_NAME,
+  })
+  .promise();
+```
+
+그리고 파일을 업로드.
+
+```ts
+const upload = await new AWS.S3()
+  .putObject({
+    Bucket: BUCKET_NAME,
+    Body: file.buffer,
+    Key: `${Date.now() + file.originalname}`,
+    ACL: 'public-read',
+  })
+  .promise();
+```

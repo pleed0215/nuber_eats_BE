@@ -23,6 +23,7 @@ import * as jwt from 'jsonwebtoken';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entity/payment.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { UploadsModule } from './uploads/uploads.module';
 
 // secret key: FHaITMZg4S6Y8aooKl1O1YPTSIxDW5Vz
 
@@ -42,6 +43,8 @@ import { ScheduleModule } from '@nestjs/schedule';
         MAILGUN_APIKEY: Joi.string().required(),
         MAILGUN_DOMAIN: Joi.string().required(),
         MAILGUN_EMAIL: Joi.string().required(),
+        AWS_ACCESS_KEY: Joi.string().required(),
+        AWS_SECRET_KEY: Joi.string().required(),
       }),
     }),
     GraphQLModule.forRoot({
@@ -86,6 +89,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuthModule,
     OrdersModule,
     PaymentsModule,
+    UploadsModule,
   ],
   controllers: [],
   providers: [],
