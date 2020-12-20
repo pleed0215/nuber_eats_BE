@@ -91,17 +91,21 @@ export class RestaurantsService {
     input: CreateRestaurantInput,
   ): Promise<CreateRestaurantOutput> {
     try {
+      console.log(input);
       const newRestaurant = this.restaurants.create({ ...input, owner });
 
       newRestaurant.category = await this.categories.findOrCreate(
         input.categoryName,
       );
+
       await this.restaurants.save(newRestaurant);
+
       return {
         ok: true,
         data: newRestaurant,
       };
     } catch (e) {
+      console.log(e);
       return {
         ok: false,
         error: e.toString(),
