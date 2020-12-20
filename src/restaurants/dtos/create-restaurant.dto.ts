@@ -26,7 +26,7 @@ export class CreateRestaurantInput extends PickType(Restaurant, [
 @ObjectType()
 export class CreateRestaurantOutput extends CommonOutput {
   @Field(type => Restaurant, { nullable: true })
-  data?: Restaurant;
+  restaurant?: Restaurant;
 }
 
 @ObjectType()

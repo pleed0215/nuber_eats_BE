@@ -102,7 +102,7 @@ export class RestaurantsService {
 
       return {
         ok: true,
-        data: newRestaurant,
+        restaurant: newRestaurant,
       };
     } catch (e) {
       console.log(e);
