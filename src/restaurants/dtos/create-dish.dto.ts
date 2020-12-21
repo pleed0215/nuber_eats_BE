@@ -15,6 +15,7 @@ export class CreateDishInput extends PickType(Dish, [
   'name',
   'price',
   'description',
+  'photo',
   'options',
 ] as const) {
   @Field(type => Int)
@@ -22,7 +23,10 @@ export class CreateDishInput extends PickType(Dish, [
 }
 
 @ObjectType()
-export class CreateDishOutput extends CommonOutput {}
+export class CreateDishOutput extends CommonOutput {
+  @Field(type => Dish, { nullable: true })
+  dish?: Dish;
+}
 
 @ObjectType()
 export class DeleteDishOutput extends CommonOutput {}

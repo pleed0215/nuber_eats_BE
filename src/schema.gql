@@ -124,7 +124,7 @@ type Restaurant {
 type CreateRestaurantOutput {
   error: String
   ok: Boolean!
-  data: Restaurant
+  restaurant: Restaurant
 }
 
 type MyRestaurantsOutput {
@@ -193,6 +193,7 @@ type SearchRestaurantOutput {
 type CreateDishOutput {
   error: String
   ok: Boolean!
+  dish: Dish
 }
 
 type DeleteDishOutput {
@@ -336,6 +337,7 @@ input UpdateRestaurantInput {
 input CreateDishInput {
   name: String!
   price: Float!
+  photo: String
   description: String!
   options: [DishOptionType!]
   restaurantId: Int!
