@@ -314,6 +314,7 @@ export class RestaurantsService {
     input: CreateDishInput,
   ): Promise<CreateDishOutput> {
     try {
+      console.log(input);
       const { restaurantId, ...createOption } = input;
       const [isOwner, restaurant] = await this.isOwnerAndGetRestaurant(
         owner,
