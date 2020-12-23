@@ -268,7 +268,7 @@ export class RestaurantsService {
           'orders.orderItems',
         ],
       });
-      console.log('jjj', restaurant);
+
       return {
         ok: true,
         restaurant,
@@ -333,7 +333,9 @@ export class RestaurantsService {
         throw Error(`Onwer: ${owner.email} is not owner of ${restaurant.name}`);
 
       const dish = await this.dishes.save(
-        this.dishes.create({ ...createOption, restaurant }),
+        createOption
+          ? this.dishes.create({ ...createOption, restaurant })
+          : this.dishes.create({ restaurant }),
       );
       return {
         ok: true,
