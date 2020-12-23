@@ -265,6 +265,7 @@ export class RestaurantsService {
           'orders',
           'orders.customer',
           'orders.driver',
+          'orders.orderItems',
         ],
       });
       console.log('jjj', restaurant);
