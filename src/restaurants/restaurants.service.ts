@@ -258,7 +258,14 @@ export class RestaurantsService {
   async getRestaurant(id: number): Promise<RestaurantDetailOutput> {
     try {
       const restaurant = await this.restaurants.findOneOrFail(id, {
-        relations: ['category', 'owner', 'dishes'],
+        relations: [
+          'category',
+          'owner',
+          'dishes',
+          'orders',
+          'orders.customer',
+          'orders.driver',
+        ],
       });
       console.log('jjj', restaurant);
       return {
