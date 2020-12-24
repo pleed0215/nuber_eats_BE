@@ -45,3 +45,9 @@ export class UpdateDishInput extends PartialType(
 
 @ObjectType()
 export class UpdateDishOutput extends CommonOutput {}
+
+@ObjectType()
+export class DishDetailOutput extends CommonOutput {
+  @Field(type => Dish, { nullable: true })
+  dish?: Dish;
+}

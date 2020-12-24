@@ -45,6 +45,7 @@ import {
   CreateDishInput,
   CreateDishOutput,
   DeleteDishOutput,
+  DishDetailOutput,
   UpdateDishInput,
   UpdateDishOutput,
 } from './dtos/create-dish.dto';
@@ -172,5 +173,11 @@ export class DishResolver {
     @Args() input: UpdateDishInput,
   ): Promise<UpdateDishOutput> {
     return this.service.updateDish(owner, input);
+  }
+
+  @Query(returns => DishDetailOutput)
+  @Role(['Any'])
+  getDish(@Args('dishId') dishId: number) {
+    return this.service.getDish(dishId);
   }
 }

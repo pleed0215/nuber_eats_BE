@@ -206,6 +206,12 @@ type UpdateDishOutput {
   ok: Boolean!
 }
 
+type DishDetailOutput {
+  error: String
+  ok: Boolean!
+  dish: Dish
+}
+
 type CreateUserOutput {
   error: String
   ok: Boolean!
@@ -288,6 +294,7 @@ type Query {
   myRestaurants: MyRestaurantsOutput!
   category(slug: String!, page: Int = 1): CategoryOutput!
   allCategories: AllCategoriesOutput!
+  getDish(dishId: Float!): DishDetailOutput!
   me: User
   userProfile(userId: Float!): UserProfileOutput!
   orderDetail(id: Int!): OrderDetailOutput!

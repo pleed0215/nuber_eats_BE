@@ -34,6 +34,7 @@ import {
   CreateDishInput,
   CreateDishOutput,
   DeleteDishOutput,
+  DishDetailOutput,
   UpdateDishInput,
   UpdateDishOutput,
 } from './dtos/create-dish.dto';
@@ -417,6 +418,22 @@ export class RestaurantsService {
         error: null,
         count,
         restaurants,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  async getDish(dishId): Promise<DishDetailOutput> {
+    try {
+      const dish = await this.dishes.findOneOrFail(dishId);
+
+      return {
+        ok: true,
+        dish,
       };
     } catch (e) {
       return {
