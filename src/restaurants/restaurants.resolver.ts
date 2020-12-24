@@ -177,7 +177,7 @@ export class DishResolver {
 
   @Query(returns => DishDetailOutput)
   @Role(['Any'])
-  getDish(@Args('dishId') dishId: number) {
+  getDish(@Args('dishId', { type: () => Int }) dishId: number) {
     return this.service.getDish(dishId);
   }
 }
