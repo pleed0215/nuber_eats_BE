@@ -10,8 +10,8 @@ export class OrderItemOption {
   @Field(type => String)
   name: string;
 
-  @Field(type => DishChoiceOption, { nullable: true })
-  choice?: DishChoiceOption;
+  @Field(type => [DishChoiceOption], { nullable: true })
+  choices?: DishChoiceOption[];
 
   @Field(type => Number, { nullable: true })
   extra?: number;

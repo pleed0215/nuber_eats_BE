@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PubSub } from 'graphql-subscriptions';
+import { options } from 'joi';
 import {
   PUB_SUB,
   TRIGGER_NEW_COOKED_ORDER,
@@ -73,7 +74,7 @@ export class OrdersService {
         for (const option of item.options) {
           // extra can be 'null'
           if (option.extra) totalCost += option.extra;
-          if (option.choice.extra) totalCost += option.choice.extra;
+          option.choices.forEach(choice => (totalCost += choice.extra));
         }
         newOrderItems.push(await this.orderItems.save(newOrderItem));
       }

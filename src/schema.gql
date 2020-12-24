@@ -61,7 +61,7 @@ type Dish {
 
 type OrderItemOption {
   name: String!
-  choice: DishChoiceOption
+  choices: [DishChoiceOption!]
   extra: Float
 }
 
@@ -294,7 +294,7 @@ type Query {
   myRestaurants: MyRestaurantsOutput!
   category(slug: String!, page: Int = 1): CategoryOutput!
   allCategories: AllCategoriesOutput!
-  getDish(dishId: Float!): DishDetailOutput!
+  getDish(dishId: Int!): DishDetailOutput!
   me: User
   userProfile(userId: Float!): UserProfileOutput!
   orderDetail(id: Int!): OrderDetailOutput!
@@ -384,7 +384,7 @@ input CreateOrderItemInput {
 
 input OrderItemOptionInputType {
   name: String!
-  choice: DishChoiceType
+  choices: [DishChoiceType!]
   extra: Float
 }
 
