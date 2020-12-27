@@ -244,6 +244,7 @@ type VerificationOutput {
 type CreateOrderOutput {
   error: String
   ok: Boolean!
+  orderId: Int
 }
 
 type OrderDetailOutput {

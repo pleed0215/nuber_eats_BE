@@ -87,6 +87,7 @@ export class OrdersService {
 
       return {
         ok: true,
+        orderId: newOrder.id,
       };
     } catch (e) {
       return {

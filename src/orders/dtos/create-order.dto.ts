@@ -13,46 +13,49 @@ import { Order, OrderStatus } from '../entity/order.entity';
 
 @InputType()
 export class CreateOrderItemInput {
-  @Field(type => Int)
+  @Field((type) => Int)
   dishId: number;
 
-  @Field(type => [OrderItemOption], { nullable: true })
+  @Field((type) => [OrderItemOption], { nullable: true })
   options?: OrderItemOption[];
 }
 
 @InputType()
 export class CreateOrderInput {
-  @Field(type => Int)
+  @Field((type) => Int)
   restaurantId: number;
 
-  @Field(type => [CreateOrderItemInput])
+  @Field((type) => [CreateOrderItemInput])
   items: CreateOrderItemInput[];
 }
 
 @ObjectType()
-export class CreateOrderOutput extends CommonOutput {}
+export class CreateOrderOutput extends CommonOutput {
+  @Field((type) => Int, { nullable: true })
+  orderId?: number;
+}
 
 @ArgsType()
 export class OrderDetailInput {
-  @Field(type => Int)
+  @Field((type) => Int)
   id: number;
 }
 
 @ObjectType()
 export class OrderDetailOutput extends CommonOutput {
-  @Field(type => Order, { nullable: true })
+  @Field((type) => Order, { nullable: true })
   order?: Order;
 }
 
 @ArgsType()
 export class GetOrdersInput {
-  @Field(type => OrderStatus, { nullable: true })
+  @Field((type) => OrderStatus, { nullable: true })
   status?: OrderStatus;
 }
 
 @ObjectType()
 export class GetOrdersOutput extends CommonOutput {
-  @Field(type => [Order], { nullable: true })
+  @Field((type) => [Order], { nullable: true })
   orders?: Order[];
 }
 
@@ -68,6 +71,6 @@ export class UpdateOrderOutput extends CommonOutput {}
 
 @ObjectType()
 export class StatusesOutput extends CommonOutput {
-  @Field(type => [OrderStatus])
+  @Field((type) => [OrderStatus])
   statuses: OrderStatus[];
 }
