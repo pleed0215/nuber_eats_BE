@@ -256,7 +256,7 @@ export class OrdersService {
       } else {
         throw Error('Status is invalid.');
       }
-      this.orders.update(id, { ...willUpdate });
+      this.orders.update(id, { orderStatus, ...willUpdate });
       await this.pubsub.publish(TRIGGER_ORDER_UPDATE, {
         orderUpdate: {
           order: {
