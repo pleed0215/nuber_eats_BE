@@ -59,8 +59,8 @@ import { UploadsModule } from './uploads/uploads.module';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: '222.104.218.3',
-      port: 32788,
+      host: 'my.yoyang.io', //'222.104.218.3',
+      port: 32787,
       username: 'postgres',
       database: `nuber-eats${process.env.NODE_ENV === 'test' ? '-test' : ''}`,
       logging: process.env.NODE_ENV === 'dev',
