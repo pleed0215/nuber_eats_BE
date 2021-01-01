@@ -53,6 +53,7 @@ import { UploadsModule } from './uploads/uploads.module';
     }),
     GraphQLModule.forRoot({
       installSubscriptionHandlers: true,
+      playground: process.env.NODE_ENV !== 'production',
       include: [RestaurantsModule, UsersModule, OrdersModule, PaymentsModule],
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       context: async ({ req, connection }) => {
