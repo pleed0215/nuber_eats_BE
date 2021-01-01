@@ -32,7 +32,7 @@ import { UploadsModule } from './uploads/uploads.module';
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'dev' ? '.dev.env' : '.test.env',
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.dev.env' : '.env',
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
@@ -71,7 +71,7 @@ import { UploadsModule } from './uploads/uploads.module';
       }`,
       logging: process.env.NODE_ENV === 'dev',
       password: process.env.DB_PASSWORD,
-      ssl: false,
+      ssl: true,
       entities: [
         Restaurant,
         User,
