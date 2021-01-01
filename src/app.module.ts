@@ -89,7 +89,7 @@ import { UploadsModule } from './uploads/uploads.module';
         OrderItem,
         Payment,
       ],
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: true, //process.env.NODE_ENV !== 'production',
     }),
     JwtModule.forRoot({ secretKey: process.env.SECRET_KEY }),
     MailModule.forRoot({
