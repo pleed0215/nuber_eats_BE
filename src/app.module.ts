@@ -76,7 +76,9 @@ import { UploadsModule } from './uploads/uploads.module';
             password: process.env.DB_PASSWORD,
           }),
       logging: process.env.NODE_ENV === 'dev',
-      ssl: true,
+      ssl: {
+        rejectUnauthorized: false,
+      },
       entities: [
         Restaurant,
         User,
