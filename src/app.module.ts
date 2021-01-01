@@ -33,10 +33,10 @@ import { UploadsModule } from './uploads/uploads.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'dev' ? '.dev.env' : '.env',
-      ignoreEnvFile: process.env.NODE_ENV === 'prod',
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
-          .valid('dev', 'prod', 'test')
+          .valid('dev', 'production', 'test')
           .default('dev'),
         DB_PASSWORD: Joi.string().required(),
         SECRET_KEY: Joi.string().required(),
@@ -85,7 +85,7 @@ import { UploadsModule } from './uploads/uploads.module';
         OrderItem,
         Payment,
       ],
-      synchronize: process.env.NODE_ENV !== 'prod',
+      synchronize: process.env.NODE_ENV !== 'production',
     }),
     JwtModule.forRoot({ secretKey: process.env.SECRET_KEY }),
     MailModule.forRoot({
