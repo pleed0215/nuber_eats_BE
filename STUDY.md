@@ -1618,3 +1618,15 @@ const upload = await new AWS.S3()
   })
   .promise();
 ```
+
+# 14. Heroku deploy
+
+- heroku deploy는 여러번 해봤지만..
+- Procfile을 아직 잘 모름.
+
+  - web: command
+
+- heroku가 원하는 Port가 있기 때문에 Port 변경도 필요하다.
+- envrionment variables 수정
+  1. heroku config --help 해보면 알 수 있음.
+  2. heroku page의 setting에 가서도 할 수 있음.

@@ -38,13 +38,17 @@ import { UploadsModule } from './uploads/uploads.module';
         NODE_ENV: Joi.string()
           .valid('dev', 'prod', 'test')
           .default('dev'),
-        POSTGRES_PASSWORD: Joi.string().required(),
+        DB_PASSWORD: Joi.string().required(),
         SECRET_KEY: Joi.string().required(),
         MAILGUN_APIKEY: Joi.string().required(),
         MAILGUN_DOMAIN: Joi.string().required(),
         MAILGUN_EMAIL: Joi.string().required(),
         AWS_ACCESS_KEY: Joi.string().required(),
         AWS_SECRET_KEY: Joi.string().required(),
+        DB_HOST: Joi.string().required(),
+        DB_USER: Joi.string().required(),
+        DB_NAME: Joi.string().required(),
+        DB_PORT: Joi.string().required(),
       }),
     }),
     GraphQLModule.forRoot({
@@ -59,12 +63,14 @@ import { UploadsModule } from './uploads/uploads.module';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'my.yoyang.io', //'222.104.218.3',
-      port: 32787,
-      username: 'postgres',
-      database: `nuber-eats${process.env.NODE_ENV === 'test' ? '-test' : ''}`,
+      host: process.env.DB_HOST, //'my.yoyang.io', //'222.104.218.3',
+      port: +process.env.DB_PORT,
+      username: process.env.DB_USER,
+      database: `${process.env.DB_NAME}${
+        process.env.NODE_ENV === 'test' ? '-test' : ''
+      }`,
       logging: process.env.NODE_ENV === 'dev',
-      password: process.env['POSTGRES_PASSWORD'],
+      password: process.env.DB_PASSWORD,
       entities: [
         Restaurant,
         User,
