@@ -63,15 +63,18 @@ import { UploadsModule } from './uploads/uploads.module';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST, //'my.yoyang.io', //'222.104.218.3',
-      port: +process.env.DB_PORT,
-      username: process.env.DB_USER,
-      database: `${process.env.DB_NAME}${
-        process.env.NODE_ENV === 'test' ? '-test' : ''
-      }`,
+      ...(process.env.DATABASE_URL
+        ? { url: process.env.DATABASE_URL }
+        : {
+            host: process.env.DB_HOST, //'my.yoyang.io', //'222.104.218.3',
+            port: +process.env.DB_PORT,
+            username: process.env.DB_USER,
+            database: `${process.env.DB_NAME}${
+              process.env.NODE_ENV === 'test' ? '-test' : ''
+            }`,
+            password: process.env.DB_PASSWORD,
+          }),
       logging: process.env.NODE_ENV === 'dev',
-      password: process.env.DB_PASSWORD,
-      ssl: true,
       entities: [
         Restaurant,
         User,
