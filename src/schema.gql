@@ -270,6 +270,18 @@ type StatusesOutput {
   statuses: [OrderStatus!]!
 }
 
+type GetAllOrdersOutput {
+  error: String
+  ok: Boolean!
+  orders: [Order!]
+}
+
+type GetRestaurantOrdersOutput {
+  error: String
+  ok: Boolean!
+  orders: [Order!]
+}
+
 type CreatePaymentOutput {
   error: String
   ok: Boolean!
@@ -301,6 +313,8 @@ type Query {
   orderDetail(id: Int!): OrderDetailOutput!
   getOrders(status: OrderStatus): GetOrdersOutput!
   enableStatuses: StatusesOutput!
+  getAllOrders: GetAllOrdersOutput!
+  getRestaurantOrders(input: GetRestaurantOrdersInput!): GetRestaurantOrdersOutput!
   getPayment(id: Float!): GetPaymentOutput!
   getAllPayments: GetAllPaymentsOutput!
 }
@@ -308,6 +322,11 @@ type Query {
 input SearchRestaurantInput {
   page: Int = 1
   query: String!
+}
+
+input GetRestaurantOrdersInput {
+  restaurantId: Int!
+  orderStatus: OrderStatus
 }
 
 type Mutation {

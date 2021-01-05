@@ -21,6 +21,9 @@ import {
   OrderDetailOutput,
   UpdateOrderInput,
   UpdateOrderOutput,
+  GetAllOrdersOutput,
+  GetRestaurantOrdersOutput,
+  GetRestaurantOrdersInput,
 } from './dtos/create-order.dto';
 import { Order } from './entity/order.entity';
 import { OrdersService } from './orders.service';
@@ -115,5 +118,20 @@ export class OrdersResolver {
   @Role(['Any'])
   orderUpdate(@Args('orderId') orderId: number) {
     return this.pubsub.asyncIterator(TRIGGER_ORDER_UPDATE);
+  }
+
+  @Query(returns => GetAllOrdersOutput)
+  @Role(['Client', 'Delivery'])
+  getAllOrders(@AuthUser() user: User): Promise<GetAllOrdersOutput> {
+    return this.service.getAllOrders(user);
+  }
+
+  @Query(returns => GetRestaurantOrdersOutput)
+  @Role(['Owner'])
+  getRestaurantOrders(
+    @AuthUser() user: User,
+    @Args('input') input: GetRestaurantOrdersInput,
+  ): Promise<GetRestaurantOrdersOutput> {
+    return this.service.getRestaurantOrders(user, input);
   }
 }

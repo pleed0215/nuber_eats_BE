@@ -16,8 +16,11 @@ import { PlainObjectToNewEntityTransformer } from 'typeorm/query-builder/transfo
 import {
   CreateOrderInput,
   CreateOrderOutput,
+  GetAllOrdersOutput,
   GetOrdersInput,
   GetOrdersOutput,
+  GetRestaurantOrdersInput,
+  GetRestaurantOrdersOutput,
   OrderDetailOutput,
   StatusesOutput,
   UpdateOrderInput,
@@ -139,6 +142,70 @@ export class OrdersService {
     }
   }
 
+  async getAllOrders(user: User): Promise<GetAllOrdersOutput> {
+    try {
+      if (user.role === UserRole.Owner) {
+        const orders = await this.orders
+          .createQueryBuilder('order')
+          .orderBy('order.orderStatus')
+          .addOrderBy('order.createAt', 'DESC')
+          .leftJoinAndSelect('order.customer', 'customer')
+          .leftJoinAndSelect('order.driver', 'driver')
+          .leftJoinAndSelect('order.restaurant', 'restaurant')
+          .leftJoinAndSelect('order.orderItems', 'orderItems')
+          .leftJoinAndSelect('orderItems.dish', 'dish')
+          .where('order.restaurant.owner.id = :id', { id: user.id })
+          .getMany();
+
+        return {
+          ok: true,
+          orders,
+        };
+      } else if (user.role === UserRole.Client) {
+        const orders = await this.orders
+          .createQueryBuilder('order')
+          .orderBy('order.orderStatus')
+          .addOrderBy('order.createAt', 'DESC')
+          .leftJoinAndSelect('order.customer', 'customer')
+          .leftJoinAndSelect('order.driver', 'driver')
+          .leftJoinAndSelect('order.restaurant', 'restaurant')
+          .leftJoinAndSelect('order.orderItems', 'orderItems')
+          .leftJoinAndSelect('orderItems.dish', 'dish')
+          .where('order.customer.id = :id', { id: user.id })
+          .getMany();
+
+        return {
+          ok: true,
+          orders,
+        };
+      } else if (user.role === UserRole.Delivery) {
+        const orders = await this.orders
+          .createQueryBuilder('order')
+          .orderBy('order.orderStatus')
+          .addOrderBy('order.createAt', 'DESC')
+          .leftJoinAndSelect('order.customer', 'customer')
+          .leftJoinAndSelect('order.driver', 'driver')
+          .leftJoinAndSelect('order.restaurant', 'restaurant')
+          .leftJoinAndSelect('order.orderItems', 'orderItems')
+          .leftJoinAndSelect('orderItems.dish', 'dish')
+          .where('order.driver.id = :id', { id: user.id })
+          .getMany();
+
+        return {
+          ok: true,
+          orders,
+        };
+      } else {
+        throw Error('User Role is invalid');
+      }
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
   async getOrders(user: User, input: GetOrdersInput): Promise<GetOrdersOutput> {
     /*
       canSee: Owner, Delivery, Client
@@ -160,6 +227,7 @@ export class OrdersService {
       if (user.role === UserRole.Owner) {
         const ordersQuery = await this.orders
           .createQueryBuilder('order')
+          .orderBy('order.createAt', 'DESC')
           .leftJoinAndSelect('order.restaurant', 'restaurant')
           .leftJoinAndSelect('order.orderItems', 'orderItems')
           .leftJoinAndSelect('orderItems.dish', 'dish')
@@ -170,6 +238,7 @@ export class OrdersService {
       } else if (user.role === UserRole.Delivery) {
         const ordersQuery = await this.orders
           .createQueryBuilder('order')
+          .orderBy('order.createAt', 'DESC')
           .leftJoinAndSelect('order.restaurant', 'restaurant')
           .leftJoinAndSelect('order.orderItems', 'orderItems')
           .leftJoinAndSelect('orderItems.dish', 'dish')
@@ -180,6 +249,7 @@ export class OrdersService {
       } else if (user.role === UserRole.Client) {
         const ordersQuery = await this.orders
           .createQueryBuilder('order')
+          .orderBy('order.createAt', 'DESC')
           .leftJoinAndSelect('order.restaurant', 'restaurant')
           .leftJoinAndSelect('order.orderItems', 'orderItems')
           .leftJoinAndSelect('orderItems.dish', 'dish')
@@ -193,6 +263,59 @@ export class OrdersService {
         ok: true,
         orders,
       };
+    } catch (e) {
+      return {
+        ok: false,
+        error: e.toString(),
+      };
+    }
+  }
+
+  async getRestaurantOrders(
+    user: User,
+    { restaurantId, orderStatus }: GetRestaurantOrdersInput,
+  ): Promise<GetRestaurantOrdersOutput> {
+    try {
+      const restaurant = await this.restaurants.findOneOrFail(restaurantId);
+      if (restaurant.ownerId !== user.id) {
+        throw Error(
+          `${user.email} is not owner of restaurant ${restaurant.name}`,
+        );
+      }
+
+      if (orderStatus) {
+        const orders = await this.orders
+          .createQueryBuilder('order')
+          .orderBy('order.createAt', 'DESC')
+          .leftJoinAndSelect('order.restaurant', 'restaurant')
+          .leftJoinAndSelect('order.orderItems', 'orderItems')
+          .leftJoinAndSelect('orderItems.dish', 'dish')
+          .where('restaurant.owner.id=:ownerId', { ownerId: user.id })
+          .andWhere('order.orderStatus=:status', {
+            status: orderStatus,
+          })
+          .getMany();
+
+        return {
+          ok: true,
+          orders,
+        };
+      } else {
+        const orders = await this.orders
+          .createQueryBuilder('order')
+          .orderBy('order.orderStatus')
+          .addOrderBy('order.createAt', 'DESC')
+          .leftJoinAndSelect('order.restaurant', 'restaurant')
+          .leftJoinAndSelect('order.orderItems', 'orderItems')
+          .leftJoinAndSelect('orderItems.dish', 'dish')
+          .where('restaurant.owner.id=:ownerId', { ownerId: user.id })
+          .getMany();
+
+        return {
+          ok: true,
+          orders,
+        };
+      }
     } catch (e) {
       return {
         ok: false,
