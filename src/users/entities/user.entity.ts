@@ -53,6 +53,11 @@ export class User extends CoreEntity {
   @IsBoolean()
   verified: boolean;
 
+  @Field(type => String, { nullable: true })
+  @Column({ nullable: true })
+  @IsString()
+  address?: string;
+
   @OneToOne(
     type => Verification,
     verification => verification.user,
